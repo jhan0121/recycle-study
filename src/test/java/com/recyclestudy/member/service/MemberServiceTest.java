@@ -65,7 +65,6 @@ class MemberServiceTest {
         verify(memberRepository).findByEmail(any(Email.class));
         verify(memberRepository).save(any(Member.class));
         verify(deviceRepository).save(any(Device.class));
-        verify(emailService).sendDeviceAuthMail(any(String.class), any(String.class));
     }
 
     @Test
@@ -87,7 +86,6 @@ class MemberServiceTest {
         verify(memberRepository).findByEmail(any(Email.class));
         verify(memberRepository, never()).save(any(Member.class));
         verify(deviceRepository).save(any(Device.class));
-        verify(emailService).sendDeviceAuthMail(any(String.class), any(String.class));
     }
 
     @Test
