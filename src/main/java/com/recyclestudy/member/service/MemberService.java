@@ -45,6 +45,22 @@ public class MemberService {
         final List<Device> devices = deviceRepository.findAllByMemberEmail(input.email());
         return MemberFindOutput.from(devices);
     }
+
+    @Transactional
+    public void authenticateDevice(Email email, DeviceIdentifier deviceIdentifier) {
+        checkExistedMember(email);
+
+        final Device device = deviceRepository.findByIdentifier(deviceIdentifier)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 디바이스 아이디입니다: %s"
+                        .formatted(deviceIdentifier.getValue())));
+
+        if (device.isActive()) {
+            throw new BadRequestException("이미 인증되었습니다");
+        }
+
+        device.activate();
+    }
+
     private Member saveNewMember(final Email email) {
         final Optional<Member> memberOptional = memberRepository.findByEmail(email);
 
