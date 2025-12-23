@@ -29,6 +29,5 @@ class MemberTest {
         //then
         assertThatThrownBy(() -> Member.withoutId(null))
                 .isInstanceOf(IllegalArgumentException.class);
-
     }
 }
