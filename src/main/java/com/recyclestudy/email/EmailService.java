@@ -24,7 +24,7 @@ public class EmailService {
     @Async
     public void sendDeviceAuthMail(String email, String deviceId) {
         try {
-            final String authUrl = baseUrl + "/api/v1/device/auth?email=" + email + "&device=" + deviceId;
+            final String authUrl = baseUrl + "/api/v1/device/auth?email=" + email + "&identifier=" + deviceId;
 
             final Context context = new Context();
             context.setVariable("authUrl", authUrl);

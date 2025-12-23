@@ -1,4 +1,4 @@
-package com.recyclestudy.member;
+package com.recyclestudy.member.controller;
 
 import com.recyclestudy.member.domain.DeviceIdentifier;
 import com.recyclestudy.member.domain.Email;
@@ -19,7 +19,7 @@ public class DeviceController {
     @GetMapping("/auth")
     public String authenticateDevice(
             @RequestParam("email") String email,
-            @RequestParam("device") String deviceIdentifier
+            @RequestParam("identifier") String deviceIdentifier
     ) {
         memberService.authenticateDevice(Email.from(email), DeviceIdentifier.from(deviceIdentifier));
         return "auth_success";

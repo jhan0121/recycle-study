@@ -44,7 +44,7 @@ class DeviceControllerTest {
         // when & then
         given()
                 .param("email", email)
-                .param("device", identifier)
+                .param("identifier", identifier)
                 .when()
                 .get("/api/v1/device/auth")
                 .then()
@@ -62,7 +62,7 @@ class DeviceControllerTest {
         // when & then
         given()
                 .param("email", invalidEmail)
-                .param("device", identifier)
+                .param("identifier", identifier)
                 .when()
                 .get("/api/v1/device/auth")
                 .then()
