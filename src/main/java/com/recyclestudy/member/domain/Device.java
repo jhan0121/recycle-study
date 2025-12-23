@@ -41,7 +41,7 @@ public class Device extends BaseEntity {
     private Member member;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "identifier", nullable = false))
+    @AttributeOverride(name = "value", column = @Column(name = "identifier", nullable = false, unique = true))
     private DeviceIdentifier identifier;
 
     @Column(name = "is_active", nullable = false)
