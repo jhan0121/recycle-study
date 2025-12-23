@@ -27,6 +27,12 @@ public class GlobalControllerAdvice {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(final IllegalArgumentException e) {
+        final ErrorResponse response = ErrorResponse.from(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(final Exception e) {
         final ErrorResponse response = ErrorResponse.from("예기치 못한 에러가 발생했습니다");
