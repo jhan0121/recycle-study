@@ -1,0 +1,40 @@
+package com.recyclestudy.member.controller;
+
+import com.recyclestudy.email.EmailService;
+import com.recyclestudy.member.controller.request.MemberSaveRequest;
+import com.recyclestudy.member.controller.response.MemberFindResponse;
+import com.recyclestudy.member.controller.response.MemberSaveResponse;
+import com.recyclestudy.member.service.MemberService;
+import com.recyclestudy.member.service.input.MemberFindInput;
+import com.recyclestudy.member.service.input.MemberSaveInput;
+import com.recyclestudy.member.service.output.MemberFindOutput;
+import com.recyclestudy.member.service.output.MemberSaveOutput;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/members")
+@RequiredArgsConstructor
+public class MemberController {
+
+    private final MemberService memberService;
+    private final EmailService emailService;
+
+    @PostMapping
+    public ResponseEntity<MemberSaveResponse> saveMember(@RequestBody final MemberSaveRequest request) {
+        final MemberSaveInput input = request.toInput();
+        final MemberSaveOutput output = memberService.saveDevice(input);
+
+        emailService.sendDeviceAuthMail(output.email().getValue(), output.identifier().getValue());
+
+        final MemberSaveResponse response = MemberSaveResponse.from(output);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+}
