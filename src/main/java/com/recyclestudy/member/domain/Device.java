@@ -23,12 +23,16 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 public class Device extends BaseEntity {
 
-    public static Device withoutId(final Member member, final DeviceIdentifier deviceIdentifier) {
+    public static Device withoutId(
+            final Member member,
+            final DeviceIdentifier deviceIdentifier,
+            final boolean isActive
+    ) {
         NullValidator.builder()
                 .add(Fields.member, member)
                 .add(Fields.identifier, deviceIdentifier)
                 .validate();
-        return new Device(member, deviceIdentifier);
+        return new Device(member, deviceIdentifier, isActive);
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,4 +41,11 @@ public class Device extends BaseEntity {
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "identifier", nullable = false))
     private DeviceIdentifier identifier;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive;
+
+    public void activate() {
+        this.isActive = true;
+    }
 }

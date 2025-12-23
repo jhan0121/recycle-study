@@ -21,12 +21,13 @@ class DeviceTest {
         final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
 
         // when
-        final Device actual = Device.withoutId(member, deviceIdentifier);
+        final Device actual = Device.withoutId(member, deviceIdentifier, false);
 
         // then
         assertSoftly(softAssertions -> {
             softAssertions.assertThat(actual.getMember().getEmail()).isEqualTo(email);
             softAssertions.assertThat(actual.getIdentifier()).isEqualTo(deviceIdentifier);
+            softAssertions.assertThat(actual.isActive()).isFalse();
         });
     }
 
@@ -37,7 +38,7 @@ class DeviceTest {
         //given
         //when
         //then
-        assertThatThrownBy(() -> Device.withoutId(member, deviceIdentifier))
+        assertThatThrownBy(() -> Device.withoutId(member, deviceIdentifier, false))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
