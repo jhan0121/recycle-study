@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 
 @Embeddable
@@ -14,11 +15,17 @@ import lombok.experimental.FieldNameConstants;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldNameConstants(level = AccessLevel.PRIVATE)
 @Getter
+@ToString
 @EqualsAndHashCode
 public class DeviceIdentifier {
 
     public static DeviceIdentifier from(final String value) {
         validateNotNull(value);
+        return new DeviceIdentifier(value);
+    }
+
+    public static DeviceIdentifier create() {
+        final String value = IdentifierCreator.create();
         return new DeviceIdentifier(value);
     }
 
