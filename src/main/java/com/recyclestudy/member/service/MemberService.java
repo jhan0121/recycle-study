@@ -37,6 +37,14 @@ public class MemberService {
         return MemberSaveOutput.from(device);
     }
 
+    @Transactional(readOnly = true)
+    public MemberFindOutput findAllMemberDevices(final MemberFindInput input) {
+        checkExistedMember(input.email());
+        checkActiveDevice(input.deviceIdentifier());
+
+        final List<Device> devices = deviceRepository.findAllByMemberEmail(input.email());
+        return MemberFindOutput.from(devices);
+    }
     private Member saveNewMember(final Email email) {
         final Optional<Member> memberOptional = memberRepository.findByEmail(email);
 
@@ -46,5 +54,21 @@ public class MemberService {
 
         final Member notSavedMember = Member.withoutId(email);
         return memberRepository.save(notSavedMember);
+    }
+
+    private void checkExistedMember(final Email email) {
+        if (!memberRepository.existsByEmail(email)) {
+            throw new NotFoundException("존재하지 않는 멤버입니다: %s".formatted(email.getValue()));
+        }
+    }
+
+    private void checkActiveDevice(final DeviceIdentifier deviceIdentifier) {
+        final Device device = deviceRepository.findByIdentifier(deviceIdentifier)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 디바이스 아이디입니다: %s"
+                        .formatted(deviceIdentifier.getValue())));
+
+        if (!device.isActive()) {
+            throw new UnauthorizedException("인증되지 않은 디바이스입니다");
+        }
     }
 }

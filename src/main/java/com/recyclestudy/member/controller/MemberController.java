@@ -37,4 +37,15 @@ public class MemberController {
         final MemberSaveResponse response = MemberSaveResponse.from(output);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @GetMapping
+    public ResponseEntity<MemberFindResponse> findAllMemberDevices(
+            @RequestParam(name = "email") final String email,
+            @RequestParam(name = "identifier") final String identifier
+    ) {
+        final MemberFindInput input = MemberFindInput.from(email, identifier);
+        final MemberFindOutput output = memberService.findAllMemberDevices(input);
+        final MemberFindResponse response = MemberFindResponse.from(output);
+        return ResponseEntity.ok(response);
+    }
 }

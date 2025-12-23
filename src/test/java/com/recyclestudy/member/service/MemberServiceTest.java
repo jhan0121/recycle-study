@@ -89,4 +89,101 @@ class MemberServiceTest {
         verify(deviceRepository).save(any(Device.class));
         verify(emailService).sendDeviceAuthMail(any(String.class), any(String.class));
     }
+
+    @Test
+    @DisplayName("대상 이메일을 가진 멤버의 디바이스를 모두 조회한다")
+    void findAllMemberDevices() {
+        // given
+        final String email = "existed@test.com";
+        final String identifier = "device-id";
+        final MemberFindInput input = MemberFindInput.from(email, identifier);
+        final Member existedMember = Member.withoutId(input.email());
+        final Device device = Device.withoutId(existedMember, input.deviceIdentifier(), true);
+
+        given(memberRepository.existsByEmail(any(Email.class))).willReturn(true);
+        given(deviceRepository.findByIdentifier(any(DeviceIdentifier.class))).willReturn(Optional.of(device));
+        given(deviceRepository.findAllByMemberEmail(any(Email.class))).willReturn(List.of(device));
+
+        // when
+        final MemberFindOutput actual = memberService.findAllMemberDevices(input);
+
+        // then
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(actual.elements()).hasSize(1);
+            softAssertions.assertThat(actual.elements().getFirst().email()).isEqualTo(input.email());
+        });
+    }
+
+    @Test
+    @DisplayName("대상 이메일을 가진 멤버의 디바이스가 없으면 빈 리스트를 리턴한다")
+    void findAllMemberDevices_notExistedDevice() {
+        // given
+        final String email = "existed@test.com";
+        final String identifier = "device-id";
+        final MemberFindInput input = MemberFindInput.from(email, identifier);
+        final Member existedMember = Member.withoutId(input.email());
+        final Device device = Device.withoutId(existedMember, input.deviceIdentifier(), true);
+
+        given(memberRepository.existsByEmail(any(Email.class))).willReturn(true);
+        given(deviceRepository.findByIdentifier(any(DeviceIdentifier.class))).willReturn(Optional.of(device));
+        given(deviceRepository.findAllByMemberEmail(any(Email.class))).willReturn(List.of());
+
+        // when
+        final MemberFindOutput actual = memberService.findAllMemberDevices(input);
+
+        // then
+        assertThat(actual.elements()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("대상 이메일을 가진 멤버가 존재하지 않을 경우 예외를 던진다")
+    void throwExceptionWhenNotExistedMemberByEmail() {
+        // given
+        final String notExistedEmailValue = "notExisted@test.com";
+        final String identifier = "device-id";
+        final MemberFindInput input = MemberFindInput.from(notExistedEmailValue, identifier);
+
+        given(memberRepository.existsByEmail(any(Email.class))).willReturn(false);
+
+        // when
+        // then
+        assertThatThrownBy(() -> memberService.findAllMemberDevices(input))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 디바이스 아이디일 경우 예외를 던진다")
+    void throwExceptionWhenNotExistedDeviceByIdentifier() {
+        // given
+        final String email = "existed@test.com";
+        final String identifier = "not-existed-device-id";
+        final MemberFindInput input = MemberFindInput.from(email, identifier);
+
+        given(memberRepository.existsByEmail(any(Email.class))).willReturn(true);
+        given(deviceRepository.findByIdentifier(any(DeviceIdentifier.class))).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() -> memberService.findAllMemberDevices(input))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("활성화되지 않은 디바이스일 경우 예외를 던진다")
+    void throwExceptionWhenNotActiveDevice() {
+        // given
+        final String email = "existed@test.com";
+        final String identifier = "inactive-device-id";
+        final MemberFindInput input = MemberFindInput.from(email, identifier);
+        final Member existedMember = Member.withoutId(input.email());
+        final Device inactiveDevice = Device.withoutId(existedMember, input.deviceIdentifier(), false);
+
+        given(memberRepository.existsByEmail(any(Email.class))).willReturn(true);
+        given(deviceRepository.findByIdentifier(any(DeviceIdentifier.class))).willReturn(Optional.of(inactiveDevice));
+
+        // when
+        // then
+        assertThatThrownBy(() -> memberService.findAllMemberDevices(input))
+                .isInstanceOf(UnauthorizedException.class);
+    }
 }
