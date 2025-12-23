@@ -1,4 +1,4 @@
-package com.recyclestudy.member;
+package com.recyclestudy.member.controller;
 
 import com.recyclestudy.member.domain.DeviceIdentifier;
 import com.recyclestudy.member.domain.Email;
