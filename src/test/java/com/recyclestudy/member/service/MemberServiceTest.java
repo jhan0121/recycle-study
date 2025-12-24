@@ -249,8 +249,9 @@ class MemberServiceTest {
         // given
         final Email email = Email.from("test@test.com");
         final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+        final DeviceIdentifier targetDeviceIdentifier = DeviceIdentifier.from("target");
         final DeviceDeleteInput input = DeviceDeleteInput.from(
-                email.getValue(), deviceIdentifier.getValue());
+                email.getValue(), deviceIdentifier.getValue(), targetDeviceIdentifier.getValue());
         final Member member = Member.withoutId(email);
         final Device device = Device.withoutId(member, deviceIdentifier, true, ActivationExpiredDateTime.create(now));
 
@@ -260,34 +261,34 @@ class MemberServiceTest {
         memberService.deleteDevice(input);
 
         // then
-        verify(deviceRepository).delete(device);
+        verify(deviceRepository).deleteByIdentifier(targetDeviceIdentifier);
     }
 
     @Test
-    @DisplayName("존재하지 않는 디바이스 삭제 시도 시 예외를 던진다")
-    void deleteDevice_fail_notFound() {
+    @DisplayName("유효하지 않은 디바이스 아이디로 삭제 시도 시 예외를 던진다")
+    void deleteDevice_fail_invalidIdentifier() {
         // given
         final Email email = Email.from("test@test.com");
         final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("not-existed");
         final DeviceDeleteInput input = DeviceDeleteInput.from(
-                email.getValue(), deviceIdentifier.getValue());
+                email.getValue(), deviceIdentifier.getValue(), "target");
 
         given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> memberService.deleteDevice(input))
-                .isInstanceOf(NotFoundException.class);
+                .isInstanceOf(UnauthorizedException.class);
     }
 
     @Test
-    @DisplayName("소유자가 아닌 디바이스 삭제 시도 시 예외를 던진다")
+    @DisplayName("소유자가 아닌 디바이스로 삭제 시도 시 예외를 던진다")
     void deleteDevice_fail_owner() {
         // given
         final Email email = Email.from("test@test.com");
         final Email otherEmail = Email.from("other@test.com");
         final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
         final DeviceDeleteInput input = DeviceDeleteInput.from(
-                otherEmail.getValue(), deviceIdentifier.getValue());
+                otherEmail.getValue(), deviceIdentifier.getValue(), "target");
         final Member member = Member.withoutId(email);
         final Device device = Device.withoutId(member, deviceIdentifier, true, ActivationExpiredDateTime.create(now));
 

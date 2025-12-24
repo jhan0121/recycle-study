@@ -73,10 +73,10 @@ public class MemberService {
     @Transactional
     public void deleteDevice(final DeviceDeleteInput input) {
         final Device device = deviceRepository.findByIdentifier(input.deviceIdentifier())
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 디바이스 아이디입니다: %s"
+                .orElseThrow(() -> new UnauthorizedException("유효하지 않은 디바이스 아이디입니다: %s"
                         .formatted(input.deviceIdentifier().getValue())));
         device.verifyOwner(input.email());
-        deviceRepository.delete(device);
+        deviceRepository.deleteByIdentifier(input.targetDeviceIdentifier());
     }
 
     private Member saveNewMember(final Email email) {

@@ -2,7 +2,7 @@ package com.recyclestudy.member.controller;
 
 import com.recyclestudy.exception.BadRequestException;
 import com.recyclestudy.exception.DeviceActivationExpiredException;
-import com.recyclestudy.exception.NotFoundException;
+import com.recyclestudy.exception.UnauthorizedException;
 import com.recyclestudy.member.controller.request.DeviceDeleteRequest;
 import com.recyclestudy.member.domain.DeviceIdentifier;
 import com.recyclestudy.member.domain.Email;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class DevicePageControllerTest {
+class DeviceControllerTest {
 
     @LocalServerPort
     private int port;
@@ -101,7 +101,7 @@ class DevicePageControllerTest {
     @DisplayName("디바이스 삭제 시 204 응답을 반환한다")
     void deleteDevice() {
         // given
-        final DeviceDeleteRequest request = new DeviceDeleteRequest("test@test.com", "device-id");
+        final DeviceDeleteRequest request = new DeviceDeleteRequest("test@test.com", "device-id", "target-id");
 
         doNothing().when(memberService).deleteDevice(any());
 
@@ -116,12 +116,12 @@ class DevicePageControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 디바이스 삭제 시 404 응답을 반환한다")
-    void deleteDevice_NotFound() {
+    @DisplayName("유효하지 않은 디바이스 아이디로 삭제 시 401 응답을 반환한다")
+    void deleteDevice_InvalidIdentifier() {
         // given
-        final DeviceDeleteRequest request = new DeviceDeleteRequest("test@test.com", "not-existed");
+        final DeviceDeleteRequest request = new DeviceDeleteRequest("test@test.com", "not-existed", "target-id");
 
-        doThrow(new NotFoundException("존재하지 않는 디바이스 아이디입니다"))
+        doThrow(new UnauthorizedException("유효하지 않은 디바이스 아이디입니다"))
                 .when(memberService).deleteDevice(any());
 
         // when & then
@@ -131,15 +131,15 @@ class DevicePageControllerTest {
                 .when()
                 .delete("/api/v1/device")
                 .then()
-                .statusCode(HttpStatus.NOT_FOUND.value())
-                .body("message", equalTo("존재하지 않는 디바이스 아이디입니다"));
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .body("message", equalTo("유효하지 않은 디바이스 아이디입니다"));
     }
 
     @Test
     @DisplayName("소유자가 아닌 디바이스 삭제 시 400 응답을 반환한다")
     void deleteDevice_NotOwner() {
         // given
-        final DeviceDeleteRequest request = new DeviceDeleteRequest("other@test.com", "device-id");
+        final DeviceDeleteRequest request = new DeviceDeleteRequest("other@test.com", "device-id", "target-id");
 
         doThrow(new BadRequestException("디바이스 소유자가 아닙니다."))
                 .when(memberService).deleteDevice(any());

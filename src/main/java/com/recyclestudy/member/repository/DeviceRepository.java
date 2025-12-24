@@ -20,4 +20,6 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     List<Device> findAllByMemberEmail(@Param("email") Email email);
 
     Optional<Device> findByIdentifier(DeviceIdentifier deviceIdentifier);
+
+    void deleteByIdentifier(DeviceIdentifier identifier);
 }
