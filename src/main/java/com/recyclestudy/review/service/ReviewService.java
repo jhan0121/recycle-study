@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class ReviewService {
     private final DeviceRepository deviceRepository;
     private final Clock clock;
 
+    @Transactional
     public ReviewSaveOutput saveReview(final ReviewSaveInput input) {
         final Device device = deviceRepository.findByIdentifier(input.identifier())
                 .orElseThrow(() -> new UnauthorizedException("유효하지 않은 디바이스입니다"));
@@ -39,7 +41,7 @@ public class ReviewService {
         final List<LocalDateTime> scheduledAts = ReviewCycleDuration.calculate(current);
 
         final List<ReviewCycle> reviewCycles = scheduledAts.stream()
-                .map(scheduledAt -> ReviewCycle.withoutId(review, scheduledAt, NotificationStatus.PENDING))
+                .map(scheduledAt -> ReviewCycle.withoutId(savedReview, scheduledAt, NotificationStatus.PENDING))
                 .toList();
 
         final List<LocalDateTime> savedScheduledAts = reviewCycleRepository.saveAll(reviewCycles)
