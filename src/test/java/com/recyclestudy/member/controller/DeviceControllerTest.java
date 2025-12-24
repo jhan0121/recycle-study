@@ -1,5 +1,7 @@
 package com.recyclestudy.member.controller;
 
+import com.recyclestudy.exception.BadRequestException;
+import com.recyclestudy.exception.DeviceActivationExpiredException;
 import com.recyclestudy.member.domain.DeviceIdentifier;
 import com.recyclestudy.member.domain.Email;
 import com.recyclestudy.member.service.MemberService;
@@ -38,7 +40,7 @@ class DeviceControllerTest {
         final String email = "test@test.com";
         final String identifier = "device-identifier";
 
-        doThrow(new com.recyclestudy.exception.BadRequestException("이미 인증되었습니다"))
+        doThrow(new BadRequestException("이미 인증되었습니다"))
                 .when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
 
         // when & then
@@ -68,5 +70,26 @@ class DeviceControllerTest {
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("message", equalTo("유효하지 않은 이메일 형식입니다."));
+    }
+
+    @Test
+    @DisplayName("인증 유효 시간이 만료된 경우 400 응답을 반환한다")
+    void authenticateDevice_Expired() {
+        // given
+        final String email = "test@test.com";
+        final String identifier = "device-identifier";
+
+        doThrow(new DeviceActivationExpiredException("인증 유효 시간이 만료되었습니다."))
+                .when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
+
+        // when & then
+        given()
+                .param("email", email)
+                .param("identifier", identifier)
+                .when()
+                .get("/api/v1/device/auth")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("인증 유효 시간이 만료되었습니다."));
     }
 }

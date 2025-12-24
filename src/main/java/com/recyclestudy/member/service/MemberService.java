@@ -3,6 +3,7 @@ package com.recyclestudy.member.service;
 import com.recyclestudy.exception.BadRequestException;
 import com.recyclestudy.exception.NotFoundException;
 import com.recyclestudy.exception.UnauthorizedException;
+import com.recyclestudy.member.domain.ActivationExpiredDateTime;
 import com.recyclestudy.member.domain.Device;
 import com.recyclestudy.member.domain.DeviceIdentifier;
 import com.recyclestudy.member.domain.Email;
@@ -13,6 +14,8 @@ import com.recyclestudy.member.service.input.MemberFindInput;
 import com.recyclestudy.member.service.input.MemberSaveInput;
 import com.recyclestudy.member.service.output.MemberFindOutput;
 import com.recyclestudy.member.service.output.MemberSaveOutput;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +28,17 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final DeviceRepository deviceRepository;
+    private final Clock clock;
 
     @Transactional
     public MemberSaveOutput saveDevice(final MemberSaveInput input) {
         final Member member = saveNewMember(input.email());
         final DeviceIdentifier deviceIdentifier = DeviceIdentifier.create();
 
-        final Device notSavedDevice = Device.withoutId(member, deviceIdentifier, false);
+        final ActivationExpiredDateTime activationExpiredDateTime
+                = ActivationExpiredDateTime.create(LocalDateTime.now(clock));
+
+        final Device notSavedDevice = Device.withoutId(member, deviceIdentifier, false, activationExpiredDateTime);
         final Device device = deviceRepository.save(notSavedDevice);
 
         return MemberSaveOutput.from(device);
@@ -47,7 +54,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void authenticateDevice(Email email, DeviceIdentifier deviceIdentifier) {
+    public void authenticateDevice(final Email email, final DeviceIdentifier deviceIdentifier) {
         checkExistedMember(email);
 
         final Device device = deviceRepository.findByIdentifier(deviceIdentifier)
@@ -58,7 +65,8 @@ public class MemberService {
             throw new BadRequestException("이미 인증되었습니다");
         }
 
-        device.activate();
+        device.verifyOwner(email);
+        device.activate(LocalDateTime.now(clock));
     }
 
     private Member saveNewMember(final Email email) {

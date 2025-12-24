@@ -1,8 +1,9 @@
 package com.recyclestudy.member.service;
 
-import com.recyclestudy.email.EmailService;
+import com.recyclestudy.exception.BadRequestException;
 import com.recyclestudy.exception.NotFoundException;
 import com.recyclestudy.exception.UnauthorizedException;
+import com.recyclestudy.member.domain.ActivationExpiredDateTime;
 import com.recyclestudy.member.domain.Device;
 import com.recyclestudy.member.domain.DeviceIdentifier;
 import com.recyclestudy.member.domain.Email;
@@ -13,14 +14,20 @@ import com.recyclestudy.member.service.input.MemberFindInput;
 import com.recyclestudy.member.service.input.MemberSaveInput;
 import com.recyclestudy.member.service.output.MemberFindOutput;
 import com.recyclestudy.member.service.output.MemberSaveOutput;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,11 +46,18 @@ class MemberServiceTest {
     @Mock
     DeviceRepository deviceRepository;
 
-    @Mock
-    EmailService emailService;
+    @Spy
+    Clock clock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneId.of("UTC"));
 
     @InjectMocks
     MemberService memberService;
+
+    LocalDateTime now;
+
+    @BeforeEach
+    void setUp() {
+        now = LocalDateTime.now(clock);
+    }
 
     @Test
     @DisplayName("저장되지 않은 이메일일 경우 멤버를 저장 후, 새로운 디바이스 id를 저장한다")
@@ -51,7 +65,8 @@ class MemberServiceTest {
         // given
         final MemberSaveInput input = MemberSaveInput.from("new@test.com");
         final Member newMember = Member.withoutId(input.email());
-        final Device device = Device.withoutId(newMember, DeviceIdentifier.create(), false);
+        final Device device = Device.withoutId(newMember, DeviceIdentifier.create(), false,
+                ActivationExpiredDateTime.create(now));
 
         given(memberRepository.findByEmail(any(Email.class))).willReturn(Optional.empty());
         given(memberRepository.save(any(Member.class))).willReturn(newMember);
@@ -73,7 +88,8 @@ class MemberServiceTest {
         // given
         final MemberSaveInput input = MemberSaveInput.from("existed@test.com");
         final Member existedMember = Member.withoutId(input.email());
-        final Device device = Device.withoutId(existedMember, DeviceIdentifier.create(), false);
+        final Device device = Device.withoutId(existedMember, DeviceIdentifier.create(), false,
+                ActivationExpiredDateTime.create(now));
 
         given(memberRepository.findByEmail(any(Email.class))).willReturn(Optional.of(existedMember));
         given(deviceRepository.save(any(Device.class))).willReturn(device);
@@ -96,7 +112,8 @@ class MemberServiceTest {
         final String identifier = "device-id";
         final MemberFindInput input = MemberFindInput.from(email, identifier);
         final Member existedMember = Member.withoutId(input.email());
-        final Device device = Device.withoutId(existedMember, input.deviceIdentifier(), true);
+        final Device device = Device.withoutId(existedMember, input.deviceIdentifier(), true,
+                ActivationExpiredDateTime.create(now));
 
         given(memberRepository.existsByEmail(any(Email.class))).willReturn(true);
         given(deviceRepository.findByIdentifier(any(DeviceIdentifier.class))).willReturn(Optional.of(device));
@@ -120,7 +137,8 @@ class MemberServiceTest {
         final String identifier = "device-id";
         final MemberFindInput input = MemberFindInput.from(email, identifier);
         final Member existedMember = Member.withoutId(input.email());
-        final Device device = Device.withoutId(existedMember, input.deviceIdentifier(), true);
+        final Device device = Device.withoutId(existedMember, input.deviceIdentifier(), true,
+                ActivationExpiredDateTime.create(now));
 
         given(memberRepository.existsByEmail(any(Email.class))).willReturn(true);
         given(deviceRepository.findByIdentifier(any(DeviceIdentifier.class))).willReturn(Optional.of(device));
@@ -174,7 +192,8 @@ class MemberServiceTest {
         final String identifier = "inactive-device-id";
         final MemberFindInput input = MemberFindInput.from(email, identifier);
         final Member existedMember = Member.withoutId(input.email());
-        final Device inactiveDevice = Device.withoutId(existedMember, input.deviceIdentifier(), false);
+        final Device inactiveDevice = Device.withoutId(existedMember, input.deviceIdentifier(), false,
+                ActivationExpiredDateTime.create(now));
 
         given(memberRepository.existsByEmail(any(Email.class))).willReturn(true);
         given(deviceRepository.findByIdentifier(any(DeviceIdentifier.class))).willReturn(Optional.of(inactiveDevice));
@@ -183,5 +202,43 @@ class MemberServiceTest {
         // then
         assertThatThrownBy(() -> memberService.findAllMemberDevices(input))
                 .isInstanceOf(UnauthorizedException.class);
+    }
+
+    @Test
+    @DisplayName("디바이스를 인증할 수 있다")
+    void authenticateDevice() {
+        // given
+        final Email email = Email.from("test@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+        final Member member = Member.withoutId(email);
+        final Device device = Device.withoutId(member, deviceIdentifier, false, ActivationExpiredDateTime.create(now));
+
+        given(memberRepository.existsByEmail(email)).willReturn(true);
+        given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.of(device));
+
+        // when
+        memberService.authenticateDevice(email, deviceIdentifier);
+
+        // then
+        assertThat(device.isActive()).isTrue();
+    }
+
+    @Test
+    @DisplayName("소유자가 아닌 이메일로 인증 시도 시 예외를 던진다")
+    void authenticateDevice_fail_owner() {
+        // given
+        final Email email = Email.from("test@test.com");
+        final Email otherEmail = Email.from("other@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+        final Member member = Member.withoutId(email);
+        final Device device = Device.withoutId(member, deviceIdentifier, false, ActivationExpiredDateTime.create(now));
+
+        given(memberRepository.existsByEmail(otherEmail)).willReturn(true);
+        given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.of(device));
+
+        // when & then
+        assertThatThrownBy(() -> memberService.authenticateDevice(otherEmail, deviceIdentifier))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("디바이스 소유자가 아닙니다.");
     }
 }
