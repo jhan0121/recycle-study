@@ -21,6 +21,12 @@ public class GlobalControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(DeviceActivationExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleDeviceActivationExpired(final DeviceActivationExpiredException e) {
+        final ErrorResponse response = ErrorResponse.from(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(final UnauthorizedException e) {
         final ErrorResponse response = ErrorResponse.from(e.getMessage());
