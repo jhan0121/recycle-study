@@ -75,7 +75,7 @@ class MemberControllerTest {
         // given
         final String email = "test@test.com";
         final String identifier = "device-identifier";
-        final MemberFindOutput output = MemberFindOutput.from(List.of());
+        final MemberFindOutput output = MemberFindOutput.of(Email.from(email), List.of());
 
         given(memberService.findAllMemberDevices(any())).willReturn(output);
 
