@@ -1,0 +1,65 @@
+name: Test Coverage Validation
+
+on:
+  pull_request:
+    types:
+      [ opened, synchronize, reopened ]
+
+jobs:
+  Build-And-Test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: JDK 버전 21 설치
+        uses: actions/setup-java@v5
+        with:
+          distribution: corretto
+          java-version: 21
+
+      - name: Gradle Wrapper 실행 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: 전체 빌드 및 테스트
+        run: ./gradlew --info test
+
+      - name: JaCoCo 커버리지 리포트 생성
+        id: jacoco_report
+        uses: madrapps/jacoco-report@v1.7.2
+        with:
+          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: "🧪 테스트 커버리지 리포트"
+          update-comment: true
+
+      - name: Close PR, if build fail
+        if: ${{ failure() }}
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pull_number = ${{ github.event.pull_request.number }}
+            const updated_title = `[VALIDATION FAIL] ${{ github.event.pull_request.title }}`
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pull_number,
+              body: '빌드 또는 테스트 커버리지 검증에 실패했습니다.',
+              event: 'REQUEST_CHANGES'
+            })
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pull_number,
+              title: updated_title,
+              state: 'closed'
+            })
