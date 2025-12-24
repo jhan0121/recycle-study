@@ -34,7 +34,7 @@ public class DeviceController {
     @DeleteMapping
     @ResponseBody
     public ResponseEntity<Void> deleteDevice(@RequestBody final DeviceDeleteRequest request) {
-        DeviceDeleteInput input = DeviceDeleteInput.from(request.email(), request.deviceIdentifier());
+        final DeviceDeleteInput input = DeviceDeleteInput.from(request.email(), request.deviceIdentifier());
         memberService.deleteDevice(input);
         return ResponseEntity.noContent().build();
     }
