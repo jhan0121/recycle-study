@@ -35,4 +35,8 @@ public class Member extends BaseEntity {
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "email", nullable = false, unique = true))
     private Email email;
+
+    public boolean hasEmail(final Email email) {
+        return this.email.equals(email);
+    }
 }
