@@ -10,6 +10,7 @@ import com.recyclestudy.member.domain.Email;
 import com.recyclestudy.member.domain.Member;
 import com.recyclestudy.member.repository.DeviceRepository;
 import com.recyclestudy.member.repository.MemberRepository;
+import com.recyclestudy.member.service.input.DeviceDeleteInput;
 import com.recyclestudy.member.service.input.MemberFindInput;
 import com.recyclestudy.member.service.input.MemberSaveInput;
 import com.recyclestudy.member.service.output.MemberFindOutput;
@@ -238,6 +239,63 @@ class MemberServiceTest {
 
         // when & then
         assertThatThrownBy(() -> memberService.authenticateDevice(otherEmail, deviceIdentifier))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("디바이스 소유자가 아닙니다.");
+    }
+
+    @Test
+    @DisplayName("디바이스를 삭제할 수 있다")
+    void deleteDevice() {
+        // given
+        final Email email = Email.from("test@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+        final DeviceIdentifier targetDeviceIdentifier = DeviceIdentifier.from("target");
+        final DeviceDeleteInput input = DeviceDeleteInput.from(
+                email.getValue(), deviceIdentifier.getValue(), targetDeviceIdentifier.getValue());
+        final Member member = Member.withoutId(email);
+        final Device device = Device.withoutId(member, deviceIdentifier, true, ActivationExpiredDateTime.create(now));
+
+        given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.of(device));
+
+        // when
+        memberService.deleteDevice(input);
+
+        // then
+        verify(deviceRepository).deleteByIdentifier(targetDeviceIdentifier);
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 디바이스 아이디로 삭제 시도 시 예외를 던진다")
+    void deleteDevice_fail_invalidIdentifier() {
+        // given
+        final Email email = Email.from("test@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("not-existed");
+        final DeviceDeleteInput input = DeviceDeleteInput.from(
+                email.getValue(), deviceIdentifier.getValue(), "target");
+
+        given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.deleteDevice(input))
+                .isInstanceOf(UnauthorizedException.class);
+    }
+
+    @Test
+    @DisplayName("소유자가 아닌 디바이스로 삭제 시도 시 예외를 던진다")
+    void deleteDevice_fail_owner() {
+        // given
+        final Email email = Email.from("test@test.com");
+        final Email otherEmail = Email.from("other@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+        final DeviceDeleteInput input = DeviceDeleteInput.from(
+                otherEmail.getValue(), deviceIdentifier.getValue(), "target");
+        final Member member = Member.withoutId(email);
+        final Device device = Device.withoutId(member, deviceIdentifier, true, ActivationExpiredDateTime.create(now));
+
+        given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.of(device));
+
+        // when & then
+        assertThatThrownBy(() -> memberService.deleteDevice(input))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("디바이스 소유자가 아닙니다.");
     }
