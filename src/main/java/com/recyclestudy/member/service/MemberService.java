@@ -51,7 +51,7 @@ public class MemberService {
         checkActiveDevice(input.deviceIdentifier());
 
         final List<Device> devices = deviceRepository.findAllByMemberEmail(input.email());
-        return MemberFindOutput.from(devices);
+        return MemberFindOutput.of(input.email(), devices);
     }
 
     @Transactional

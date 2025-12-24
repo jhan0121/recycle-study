@@ -126,7 +126,7 @@ class MemberServiceTest {
         // then
         SoftAssertions.assertSoftly(softAssertions -> {
             softAssertions.assertThat(actual.elements()).hasSize(1);
-            softAssertions.assertThat(actual.elements().getFirst().email()).isEqualTo(input.email());
+            softAssertions.assertThat(actual.elements().getFirst().identifier()).isEqualTo(input.deviceIdentifier());
         });
     }
 
