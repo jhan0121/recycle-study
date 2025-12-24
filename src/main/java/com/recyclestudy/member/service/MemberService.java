@@ -10,6 +10,7 @@ import com.recyclestudy.member.domain.Email;
 import com.recyclestudy.member.domain.Member;
 import com.recyclestudy.member.repository.DeviceRepository;
 import com.recyclestudy.member.repository.MemberRepository;
+import com.recyclestudy.member.service.input.DeviceDeleteInput;
 import com.recyclestudy.member.service.input.MemberFindInput;
 import com.recyclestudy.member.service.input.MemberSaveInput;
 import com.recyclestudy.member.service.output.MemberFindOutput;
@@ -67,6 +68,15 @@ public class MemberService {
 
         device.verifyOwner(email);
         device.activate(LocalDateTime.now(clock));
+    }
+
+    @Transactional
+    public void deleteDevice(final DeviceDeleteInput input) {
+        final Device device = deviceRepository.findByIdentifier(input.deviceIdentifier())
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 디바이스 아이디입니다: %s"
+                        .formatted(input.deviceIdentifier().getValue())));
+        device.verifyOwner(input.email());
+        deviceRepository.delete(device);
     }
 
     private Member saveNewMember(final Email email) {
