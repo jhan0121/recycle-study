@@ -1,8 +1,10 @@
 package com.recyclestudy.email;
 
-
+import com.recyclestudy.exception.EmailSendException;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -24,21 +27,38 @@ public class EmailService {
     @Async
     public void sendDeviceAuthMail(String email, String deviceId) {
         try {
-            final String authUrl = baseUrl + "/api/v1/device/auth?email=" + email + "&identifier=" + deviceId;
+            final String authUrl = createAuthUrl(email, deviceId);
+            final String message = createMessage(authUrl);
 
-            final Context context = new Context();
-            context.setVariable("authUrl", authUrl);
+            sendMail(email, "[Recycle Study] 디바이스 인증을 완료해주세요.", message);
 
-            final String message = templateEngine.process("auth_email", context);
+            log.info("인증 메일 발송 성공: {}", email);
 
-            final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject("[Recycle Study] 디바이스 인증을 완료해주세요.");
-            mimeMessageHelper.setText(message, true);
-            javaMailSender.send(mimeMessage);
-        } catch (final Exception e) {
-            throw new RuntimeException("메일 전송에 실패했습니다.", e);
+        } catch (Exception e) {
+            log.error("메일 전송 실패. email={}, deviceId={}", email, deviceId, e);
+
+            throw new EmailSendException("메일 전송 중 오류가 발생했습니다.", e);
         }
+    }
+
+    private String createAuthUrl(String email, String deviceId) {
+        return String.format("%s/api/v1/device/auth?email=%s&identifier=%s", baseUrl, email, deviceId);
+    }
+
+    private String createMessage(String authUrl) {
+        final Context context = new Context();
+        context.setVariable("authUrl", authUrl);
+        return templateEngine.process("auth_email", context);
+    }
+
+    private void sendMail(String to, String subject, String content) throws MessagingException {
+        final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        javaMailSender.send(mimeMessage);
     }
 }
