@@ -3,6 +3,7 @@ package com.recyclestudy.exception;
 import com.recyclestudy.exception.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -35,6 +36,13 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(final IllegalArgumentException e) {
+        final ErrorResponse response = ErrorResponse.from(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
+            final MissingServletRequestParameterException e) {
         final ErrorResponse response = ErrorResponse.from(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
