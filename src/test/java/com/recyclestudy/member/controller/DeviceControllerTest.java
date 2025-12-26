@@ -1,6 +1,5 @@
 package com.recyclestudy.member.controller;
 
-import com.epages.restdocs.apispec.Schema;
 import com.recyclestudy.exception.BadRequestException;
 import com.recyclestudy.exception.DeviceActivationExpiredException;
 import com.recyclestudy.exception.NotFoundException;
@@ -21,6 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static com.epages.restdocs.apispec.ResourceSnippetParameters.builder;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.Schema.schema;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,10 +58,10 @@ class DeviceControllerTest extends APIBaseTest {
                                                 parameterWithName("identifier").description("디바이스 식별자")
                                         )
                                         .responseHeaders(
-                                                headerWithName(HttpHeaders.CONTENT_TYPE).description(
-                                                        "text/html;charset=UTF-8")
+                                                headerWithName(HttpHeaders.CONTENT_TYPE)
+                                                        .description("text/html;charset=UTF-8")
                                         )
-                                        .responseSchema(Schema.schema("string"))
+                                        .responseSchema(schema("string"))
                                         .build()
                         ),
                         queryParameters(
@@ -483,7 +483,8 @@ class DeviceControllerTest extends APIBaseTest {
                                 .requestFields(
                                         fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
                                         fieldWithPath("identifier").type(JsonFieldType.STRING).description("디바이스 식별자"),
-                                        fieldWithPath("targetIdentifier").description("삭제할 디바이스 식별자")
+                                        fieldWithPath("targetIdentifier").type(JsonFieldType.STRING)
+                                                .description("삭제할 디바이스 식별자")
                                 )
                                 .responseFields(
                                         fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")

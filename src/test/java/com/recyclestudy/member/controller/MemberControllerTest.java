@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static com.epages.restdocs.apispec.ResourceSnippetParameters.builder;
@@ -57,11 +58,11 @@ class MemberControllerTest extends APIBaseTest {
                                 .summary("멤버 저장")
                                 .description("이메일을 통해 새로운 디바이스를 저장한다")
                                 .requestFields(
-                                        fieldWithPath("email").description("이메일")
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일")
                                 )
                                 .responseFields(
-                                        fieldWithPath("email").description("이메일"),
-                                        fieldWithPath("identifier").description("디바이스 식별자")
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
+                                        fieldWithPath("identifier").type(JsonFieldType.STRING).description("디바이스 식별자")
                                 )
                 ))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -111,10 +112,12 @@ class MemberControllerTest extends APIBaseTest {
                                         parameterWithName("identifier").description("디바이스 식별자")
                                 )
                                 .responseFields(
-                                        fieldWithPath("email").description("이메일"),
-                                        fieldWithPath("devices").description("디바이스 목록"),
-                                        fieldWithPath("devices[].identifier").description("디바이스 식별자 값"),
-                                        fieldWithPath("devices[].createdAt").description("디바이스 생성일")
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
+                                        fieldWithPath("devices").type(JsonFieldType.ARRAY).description("디바이스 목록"),
+                                        fieldWithPath("devices[].identifier").type(JsonFieldType.STRING)
+                                                .description("디바이스 식별자 값"),
+                                        fieldWithPath("devices[].createdAt").type(JsonFieldType.STRING)
+                                                .description("디바이스 생성일")
                                 ),
                         queryParameters(
                                 parameterWithName("email").description("이메일"),
@@ -152,7 +155,7 @@ class MemberControllerTest extends APIBaseTest {
                                         parameterWithName("identifier").description("디바이스 식별자")
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 ),
                         queryParameters(
                                 parameterWithName("email").description("이메일"),
@@ -190,7 +193,7 @@ class MemberControllerTest extends APIBaseTest {
                                         parameterWithName("identifier").description("디바이스 식별자")
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 ),
                         queryParameters(
                                 parameterWithName("email").description("이메일"),
@@ -225,7 +228,7 @@ class MemberControllerTest extends APIBaseTest {
                                         parameterWithName("identifier").description("디바이스 식별자")
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 ),
                         queryParameters(
                                 parameterWithName("email").description("이메일"),
@@ -255,10 +258,10 @@ class MemberControllerTest extends APIBaseTest {
                                 .summary("멤버 저장")
                                 .description("이메일이 누락된 경우 400 응답을 반환한다")
                                 .requestFields(
-                                        fieldWithPath("email").description("이메일").optional()
+                                        fieldWithPath("email").type(JsonFieldType.STRING).description("이메일").optional()
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 )
                 ))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -288,7 +291,7 @@ class MemberControllerTest extends APIBaseTest {
                                         fieldWithPath("email").description("이메일")
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 )
                 ))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -322,7 +325,7 @@ class MemberControllerTest extends APIBaseTest {
                                         parameterWithName("identifier").description("디바이스 식별자")
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 ),
                         queryParameters(
                                 parameterWithName("email").description("이메일"),
@@ -355,7 +358,7 @@ class MemberControllerTest extends APIBaseTest {
                                         parameterWithName("identifier").description("디바이스 식별자")
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 ),
                         queryParameters(
                                 parameterWithName("identifier").description("디바이스 식별자")
@@ -385,7 +388,7 @@ class MemberControllerTest extends APIBaseTest {
                                         parameterWithName("email").description("이메일")
                                 )
                                 .responseFields(
-                                        fieldWithPath("message").description("에러 메시지")
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메시지")
                                 ),
                         queryParameters(
                                 parameterWithName("email").description("이메일")
