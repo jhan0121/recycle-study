@@ -39,5 +39,7 @@ out/
 ### .env ###
 .env
 
-### Chrome Extension ###
-config.js
+### Node.js ###
+node_modules/
+dist/
+*.log

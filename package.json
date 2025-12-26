@@ -1,0 +1,14 @@
+{
+  "name": "recycle-study-extension",
+  "version": "1.0.0",
+  "description": "복습 URL 저장 크롬 익스텐션",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
