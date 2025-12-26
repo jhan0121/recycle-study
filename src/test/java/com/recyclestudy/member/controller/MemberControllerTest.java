@@ -392,9 +392,9 @@ class MemberControllerTest extends APIBaseTest {
                         )
                 ))
                 .param("email", email)
-                .when().log().all()
+                .when()
                 .get("/api/v1/members")
-                .then().log().all()
+                .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }
