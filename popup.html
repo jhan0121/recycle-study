@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recycle Study</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Recycle Study</h1>
+    </header>
+
+    <!-- 로그인/등록 화면 -->
+    <div id="login-view" class="view">
+      <div class="form-group">
+        <label for="email-input">이메일</label>
+        <input type="email" id="email-input" placeholder="example@email.com">
+      </div>
+      <button id="register-btn" class="btn btn-primary">디바이스 등록</button>
+      <p id="login-hint" class="hint">이메일 인증 후 서비스를 이용할 수 있습니다.</p>
+    </div>
+
+    <!-- 인증 대기 화면 -->
+    <div id="pending-view" class="view hidden">
+      <div class="pending-message">
+        <p>이메일 인증 링크를 확인해주세요.</p>
+        <p class="email-display"></p>
+      </div>
+      <button id="check-auth-btn" class="btn btn-secondary">인증 확인</button>
+      <button id="reset-btn" class="btn btn-text">다른 이메일로 등록</button>
+    </div>
+
+    <!-- 메인 화면 (인증 완료 후) -->
+    <div id="main-view" class="view hidden">
+      <div class="user-info">
+        <span id="user-email"></span>
+      </div>
+
+      <button id="save-url-btn" class="btn btn-primary btn-large">
+        현재 페이지 저장
+      </button>
+
+      <div id="save-result" class="result hidden">
+        <p class="result-title">저장 완료!</p>
+        <div class="schedule-list">
+          <p>복습 예정일:</p>
+          <ul id="schedule-dates"></ul>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <button id="show-devices-btn" class="btn btn-secondary">디바이스 관리</button>
+
+      <div id="devices-section" class="hidden">
+        <h3>등록된 디바이스</h3>
+        <ul id="devices-list" class="devices-list"></ul>
+      </div>
+
+      <button id="logout-btn" class="btn btn-text">로그아웃</button>
+    </div>
+
+    <!-- 에러/메시지 표시 영역 -->
+    <div id="message-area" class="message-area hidden"></div>
+
+    <!-- 로딩 표시 -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

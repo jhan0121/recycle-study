@@ -1,0 +1,333 @@
+/* 기본 스타일 초기화 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  background-color: #fff;
+}
+
+.container {
+  width: 320px;
+  min-height: 200px;
+  padding: 16px;
+}
+
+/* 헤더 */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* 뷰 전환 */
+.view {
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 폼 요소 */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* 버튼 */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: #ecf0f1;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #d5dbdb;
+}
+
+.btn-text {
+  background: none;
+  color: #7f8c8d;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.btn-text:hover {
+  color: #e74c3c;
+}
+
+.btn-large {
+  padding: 14px 16px;
+  font-size: 16px;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 12px;
+  width: auto;
+}
+
+/* 힌트 텍스트 */
+.hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #95a5a6;
+  text-align: center;
+}
+
+/* 인증 대기 화면 */
+.pending-message {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.pending-message p {
+  margin-bottom: 8px;
+}
+
+.email-display {
+  font-weight: 600;
+  color: #3498db;
+}
+
+/* 메인 화면 */
+.user-info {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* 저장 결과 */
+.result {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #d5f5e3;
+  border-radius: 6px;
+}
+
+.result-title {
+  font-weight: 600;
+  color: #27ae60;
+  margin-bottom: 8px;
+}
+
+.schedule-list {
+  font-size: 12px;
+  color: #333;
+}
+
+.schedule-list p {
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.schedule-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.schedule-list li {
+  padding: 4px 0;
+  color: #555;
+}
+
+/* 구분선 */
+.divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 16px 0;
+}
+
+/* 디바이스 목록 */
+.devices-list {
+  list-style: none;
+  margin-top: 12px;
+}
+
+.devices-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.device-info {
+  flex: 1;
+}
+
+.device-id {
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.device-date {
+  color: #95a5a6;
+  font-size: 11px;
+}
+
+.current-device {
+  color: #27ae60;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* 메시지 영역 */
+.message-area {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.message-area.error {
+  background-color: #fadbd8;
+  color: #c0392b;
+}
+
+.message-area.success {
+  background-color: #d5f5e3;
+  color: #27ae60;
+}
+
+.message-area.info {
+  background-color: #d6eaf8;
+  color: #2980b9;
+}
+
+/* 로딩 */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 확인 다이얼로그 */
+.confirm-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.confirm-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 280px;
+}
+
+.confirm-content p {
+  margin-bottom: 16px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.confirm-buttons .btn {
+  flex: 1;
+}

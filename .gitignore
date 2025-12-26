@@ -38,3 +38,6 @@ out/
 
 ### .env ###
 .env
+
+### Chrome Extension ###
+config.js
