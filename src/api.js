@@ -1,5 +1,7 @@
 /**
  * API 호출 관련 함수
+ *
+ * 서버와의 통신을 담당하며, 디바이스 등록/조회/삭제, 복습 URL 저장 등의 API를 제공한다.
  */
 
 import { CONFIG } from './config.js';

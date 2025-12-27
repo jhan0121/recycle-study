@@ -1,5 +1,7 @@
 /**
  * Chrome Storage 관련 함수
+ *
+ * 로컬 스토리지를 통해 이메일, 디바이스 식별자, 인증 상태를 저장하고 관리한다.
  */
 
 import { STORAGE_KEYS } from './config.js';

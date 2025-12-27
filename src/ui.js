@@ -1,5 +1,8 @@
 /**
  * UI 관련 함수
+ *
+ * DOM 요소 캐싱, 로딩/메시지 표시, 뷰 전환, 에러 처리 등
+ * 화면 표시와 관련된 기능을 담당한다.
  */
 
 import { clearStorage } from './storage.js';

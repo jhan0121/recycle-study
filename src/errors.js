@@ -1,5 +1,7 @@
 /**
  * 에러 처리 관련 함수
+ *
+ * ApiError 클래스, HTTP 상태 코드 변환, 사용자 메시지 생성, 로그아웃 필요 여부 판단 등을 제공한다.
  */
 
 import { ERROR_CODES, LOGOUT_REQUIRED_ERRORS } from './constants.js';

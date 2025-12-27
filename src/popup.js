@@ -1,6 +1,7 @@
 /**
- * Recycle Study Chrome Extension
  * 팝업 진입점
+ *
+ * DOM 로드 후 UI 초기화, 이벤트 리스너 등록, 인증 상태에 따른 뷰 전환을 수행한다.
  */
 
 import { getStorageData, clearStorage, isStorageDataValid } from './storage.js';
