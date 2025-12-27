@@ -38,3 +38,9 @@ out/
 
 ### .env ###
 .env
+.env.*
+
+### Node.js ###
+node_modules/
+dist/
+*.log
