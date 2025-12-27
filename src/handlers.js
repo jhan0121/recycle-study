@@ -143,14 +143,35 @@ export async function handleShowDevices() {
       const li = document.createElement('li');
       const isCurrentDevice = device.identifier === storageData.identifier;
 
-      li.innerHTML = `
-        <div class="device-info">
-          <div class="device-id">${device.identifier.substring(0, 20)}...</div>
-          <div class="device-date">${formatDate(device.createdAt)}</div>
-          ${isCurrentDevice ? '<div class="current-device">현재 디바이스</div>' : ''}
-        </div>
-        ${!isCurrentDevice ? `<button class="btn btn-danger" data-id="${device.identifier}">삭제</button>` : ''}
-      `;
+      const deviceInfo = document.createElement('div');
+      deviceInfo.className = 'device-info';
+
+      const deviceIdDiv = document.createElement('div');
+      deviceIdDiv.className = 'device-id';
+      deviceIdDiv.textContent = device.identifier.substring(0, 20) + '...';
+      deviceInfo.appendChild(deviceIdDiv);
+
+      const deviceDateDiv = document.createElement('div');
+      deviceDateDiv.className = 'device-date';
+      deviceDateDiv.textContent = formatDate(device.createdAt);
+      deviceInfo.appendChild(deviceDateDiv);
+
+      if (isCurrentDevice) {
+        const currentDeviceDiv = document.createElement('div');
+        currentDeviceDiv.className = 'current-device';
+        currentDeviceDiv.textContent = '현재 디바이스';
+        deviceInfo.appendChild(currentDeviceDiv);
+      }
+
+      li.appendChild(deviceInfo);
+
+      if (!isCurrentDevice) {
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'btn btn-danger';
+        deleteButton.setAttribute('data-id', device.identifier);
+        deleteButton.textContent = '삭제';
+        li.appendChild(deleteButton);
+      }
 
       elements.devicesList.appendChild(li);
     });
