@@ -30,8 +30,9 @@ async function apiRequest(url, options = {}) {
   let data;
   try {
     data = await response.json();
-  } catch {
-    data = {};
+  } catch (parseError) {
+    console.error('Failed to parse JSON response:', parseError);
+    data = { message: 'Invalid JSON response from server.' };
   }
 
   if (!response.ok) {
