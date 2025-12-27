@@ -23,6 +23,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'CHECK_AUTH') {
     sendResponse({ success: true });
   }
-
-  return true;
 });
