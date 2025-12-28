@@ -2,47 +2,33 @@
  * API 호출 관련 함수
  *
  * 서버와의 통신을 담당하며, 디바이스 등록/조회/삭제, 복습 URL 저장 등의 API를 제공한다.
+ * 모든 API 요청은 background.js를 통해 처리되어 CORS 문제를 우회한다.
  */
 
-import { CONFIG } from './config.js';
 import { ERROR_CODES } from './constants.js';
 import { ApiError, getErrorCodeFromStatus } from './errors.js';
 
 /**
- * API 요청 래퍼 (공통 에러 처리)
- * @param {string} url - 요청 URL
- * @param {Object} options - fetch 옵션
+ * Background Script로 API 요청 전송
+ * @param {Object} request - API 요청 정보
  * @returns {Promise<Object|null>} 응답 데이터
  * @throws {ApiError}
  */
-async function apiRequest(url, options = {}) {
-  let response;
+async function sendApiRequest(request) {
+  const response = await chrome.runtime.sendMessage({
+    type: 'API_REQUEST',
+    request
+  });
 
-  try {
-    response = await fetch(url, options);
-  } catch (error) {
-    throw new ApiError(ERROR_CODES.NETWORK_ERROR, error.message);
-  }
-
-  // 204 No Content인 경우 (DELETE 성공 등)
-  if (response.status === 204) {
-    return null;
-  }
-
-  let data;
-  try {
-    data = await response.json();
-  } catch (parseError) {
-    console.error('Failed to parse JSON response:', parseError);
-    data = { message: 'Invalid JSON response from server.' };
-  }
-
-  if (!response.ok) {
+  if (!response.success) {
+    if (response.isNetworkError) {
+      throw new ApiError(ERROR_CODES.NETWORK_ERROR, response.message);
+    }
     const errorCode = getErrorCodeFromStatus(response.status);
-    throw new ApiError(errorCode, data.message);
+    throw new ApiError(errorCode, response.message);
   }
 
-  return data;
+  return response.data;
 }
 
 /**
@@ -51,10 +37,10 @@ async function apiRequest(url, options = {}) {
  * @returns {Promise<Object>} { email, identifier }
  */
 export async function registerDevice(email) {
-  return await apiRequest(`${CONFIG.BASE_URL}/api/v1/members`, {
+  return await sendApiRequest({
+    endpoint: '/api/v1/members',
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email })
+    body: { email }
   });
 }
 
@@ -65,8 +51,11 @@ export async function registerDevice(email) {
  * @returns {Promise<Object>} { email, devices }
  */
 export async function getDevices(email, identifier) {
-  const params = new URLSearchParams({ email, identifier });
-  return await apiRequest(`${CONFIG.BASE_URL}/api/v1/members?${params}`);
+  return await sendApiRequest({
+    endpoint: '/api/v1/members',
+    method: 'GET',
+    params: { email, identifier }
+  });
 }
 
 /**
@@ -76,14 +65,10 @@ export async function getDevices(email, identifier) {
  * @param {string} targetDeviceIdentifier - 삭제할 디바이스 식별자
  */
 export async function deleteDevice(email, deviceIdentifier, targetDeviceIdentifier) {
-  return await apiRequest(`${CONFIG.BASE_URL}/api/v1/device`, {
+  return await sendApiRequest({
+    endpoint: '/api/v1/device',
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email,
-      deviceIdentifier,
-      targetDeviceIdentifier
-    })
+    body: { email, deviceIdentifier, targetDeviceIdentifier }
   });
 }
 
@@ -94,9 +79,9 @@ export async function deleteDevice(email, deviceIdentifier, targetDeviceIdentifi
  * @returns {Promise<Object>} { url, scheduledAts }
  */
 export async function saveReviewUrl(identifier, targetUrl) {
-  return await apiRequest(`${CONFIG.BASE_URL}/api/v1/reviews`, {
+  return await sendApiRequest({
+    endpoint: '/api/v1/reviews',
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identifier, targetUrl })
+    body: { identifier, targetUrl }
   });
 }
