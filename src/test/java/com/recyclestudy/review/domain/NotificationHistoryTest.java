@@ -15,6 +15,24 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class NotificationHistoryTest {
 
+    private static Stream<Arguments> provideInvalidValue() {
+        final ReviewCycle reviewCycle = createReviewCycle();
+        final NotificationStatus status = NotificationStatus.PENDING;
+
+        return Stream.of(
+                Arguments.of(null, status),
+                Arguments.of(reviewCycle, null),
+                Arguments.of(null, null)
+        );
+    }
+
+    private static ReviewCycle createReviewCycle() {
+        final Email email = Email.from("test@test.com");
+        final Member member = Member.withoutId(email);
+        final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
+        return ReviewCycle.withoutId(review, LocalDateTime.now());
+    }
+
     @Test
     @DisplayName("NotificationHistory를 생성할 수 있다")
     void withoutId() {
@@ -44,23 +62,5 @@ class NotificationHistoryTest {
         // then
         assertThatThrownBy(() -> NotificationHistory.withoutId(reviewCycle, status))
                 .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    private static Stream<Arguments> provideInvalidValue() {
-        final ReviewCycle reviewCycle = createReviewCycle();
-        final NotificationStatus status = NotificationStatus.PENDING;
-
-        return Stream.of(
-                Arguments.of(null, status),
-                Arguments.of(reviewCycle, null),
-                Arguments.of(null, null)
-        );
-    }
-
-    private static ReviewCycle createReviewCycle() {
-        final Email email = Email.from("test@test.com");
-        final Member member = Member.withoutId(email);
-        final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
-        return ReviewCycle.withoutId(review, LocalDateTime.now());
     }
 }

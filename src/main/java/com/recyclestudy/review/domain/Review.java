@@ -25,6 +25,14 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 public class Review extends BaseEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+    
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "url", nullable = false, columnDefinition = "TEXT"))
+    private ReviewURL url;
+
     public static Review withoutId(final Member member, final ReviewURL url) {
         validateNotNull(member, url);
         return new Review(member, url);
@@ -36,12 +44,4 @@ public class Review extends BaseEntity {
                 .add(Fields.url, url)
                 .validate();
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
-
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "url", nullable = false, columnDefinition = "TEXT"))
-    private ReviewURL url;
 }

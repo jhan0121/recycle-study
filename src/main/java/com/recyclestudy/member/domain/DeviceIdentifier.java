@@ -19,6 +19,8 @@ import lombok.experimental.FieldNameConstants;
 @EqualsAndHashCode
 public class DeviceIdentifier {
 
+    private String value;
+
     public static DeviceIdentifier from(final String value) {
         validateNotNull(value);
         return new DeviceIdentifier(value);
@@ -34,6 +36,4 @@ public class DeviceIdentifier {
                 .add(Fields.value, value)
                 .validate();
     }
-
-    private String value;
 }

@@ -15,6 +15,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ReviewCycleTest {
 
+    private static Stream<Arguments> provideInvalidValue() {
+        final Email email = Email.from("test@test.com");
+        final Member member = Member.withoutId(email);
+        final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
+        final LocalDateTime scheduledAt = LocalDateTime.now();
+
+        return Stream.of(
+                Arguments.of(null, scheduledAt),
+                Arguments.of(review, null),
+                Arguments.of(null, null)
+        );
+    }
+
     @Test
     @DisplayName("ReviewCycle을 생성할 수 있다")
     void withoutId() {
@@ -44,18 +57,5 @@ class ReviewCycleTest {
         // then
         assertThatThrownBy(() -> ReviewCycle.withoutId(review, scheduledAt))
                 .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    private static Stream<Arguments> provideInvalidValue() {
-        final Email email = Email.from("test@test.com");
-        final Member member = Member.withoutId(email);
-        final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
-        final LocalDateTime scheduledAt = LocalDateTime.now();
-
-        return Stream.of(
-                Arguments.of(null, scheduledAt),
-                Arguments.of(review, null),
-                Arguments.of(null, null)
-        );
     }
 }

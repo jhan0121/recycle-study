@@ -24,6 +24,14 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 public class NotificationHistory extends BaseEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_cycle_id", nullable = false)
+    private ReviewCycle reviewCycle;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private NotificationStatus status;
+
     public static NotificationHistory withoutId(
             final ReviewCycle reviewCycle,
             final NotificationStatus status
@@ -41,12 +49,4 @@ public class NotificationHistory extends BaseEntity {
                 .add(Fields.status, status)
                 .validate();
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_cycle_id", nullable = false)
-    private ReviewCycle reviewCycle;
-
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private NotificationStatus status;
 }

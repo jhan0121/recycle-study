@@ -74,6 +74,7 @@ class DeviceAuthEmailSenderTest {
         final Context capturedContext = contextCaptor.getValue();
         final String authUrl = (String) capturedContext.getVariable("authUrl");
 
-        assertThat(authUrl).isEqualTo("https://example.com/api/v1/device/auth?email=test@test.com&identifier=device-123");
+        assertThat(authUrl)
+                .isEqualTo("https://example.com/api/v1/device/auth?email=test@test.com&identifier=device-123");
     }
 }

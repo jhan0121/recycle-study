@@ -22,6 +22,12 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 public class ReviewCycle extends BaseEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id", nullable = false)
+    private Review review;
+
+    private LocalDateTime scheduledAt;
+
     public static ReviewCycle withoutId(final Review review, final LocalDateTime scheduledAt) {
         validateNotNull(review, scheduledAt);
         return new ReviewCycle(review, scheduledAt);
@@ -33,10 +39,4 @@ public class ReviewCycle extends BaseEntity {
                 .add(Fields.scheduledAt, scheduledAt)
                 .validate();
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id", nullable = false)
-    private Review review;
-
-    private LocalDateTime scheduledAt;
 }

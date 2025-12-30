@@ -8,8 +8,8 @@
 <p>아래 링크들을 클릭하여 복습을 진행하세요.</p>
 <ul>
     <li th:each="url : ${targetUrls}">
-        <a th:href="${url.getValue()}" th:text="${url.getValue()}"
-           style="color: #007bff; text-decoration: none;">
+        <a style="color: #007bff; text-decoration: none;" th:href="${url.getValue()}"
+           th:text="${url.getValue()}">
         </a>
     </li>
 </ul>

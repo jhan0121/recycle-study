@@ -26,20 +26,6 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 public class Device extends BaseEntity {
 
-    public static Device withoutId(
-            final Member member,
-            final DeviceIdentifier deviceIdentifier,
-            final boolean isActive,
-            final ActivationExpiredDateTime activationExpiresAt
-    ) {
-        NullValidator.builder()
-                .add(Fields.member, member)
-                .add(Fields.identifier, deviceIdentifier)
-                .add(Fields.activationExpiresAt, activationExpiresAt)
-                .validate();
-        return new Device(member, deviceIdentifier, isActive, activationExpiresAt);
-    }
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
@@ -54,6 +40,20 @@ public class Device extends BaseEntity {
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "activation_expires_at", nullable = false))
     private ActivationExpiredDateTime activationExpiresAt;
+
+    public static Device withoutId(
+            final Member member,
+            final DeviceIdentifier deviceIdentifier,
+            final boolean isActive,
+            final ActivationExpiredDateTime activationExpiresAt
+    ) {
+        NullValidator.builder()
+                .add(Fields.member, member)
+                .add(Fields.identifier, deviceIdentifier)
+                .add(Fields.activationExpiresAt, activationExpiresAt)
+                .validate();
+        return new Device(member, deviceIdentifier, isActive, activationExpiresAt);
+    }
 
     public void activate(final LocalDateTime currentTime) {
         activationExpiresAt.checkExpired(currentTime);

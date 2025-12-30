@@ -14,6 +14,21 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class DeviceTest {
 
+    private static Stream<Arguments> provideInvalidValue() {
+        final Email email = Email.from("test@test.com");
+        final Member member = Member.withoutId(email);
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+        final ActivationExpiredDateTime activationExpiredDateTime = ActivationExpiredDateTime.create(
+                LocalDateTime.now());
+
+        return Stream.of(
+                Arguments.of(member, null, activationExpiredDateTime),
+                Arguments.of(null, deviceIdentifier, activationExpiredDateTime),
+                Arguments.of(member, deviceIdentifier, null),
+                Arguments.of(null, null, null)
+        );
+    }
+
     @Test
     @DisplayName("withoutId 메서드를 통해 Device를 생성할 수 있다")
     void withoutId() {
@@ -46,21 +61,6 @@ class DeviceTest {
         //then
         assertThatThrownBy(() -> Device.withoutId(member, deviceIdentifier, false, activationExpiredDateTime))
                 .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    private static Stream<Arguments> provideInvalidValue() {
-        final Email email = Email.from("test@test.com");
-        final Member member = Member.withoutId(email);
-        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
-        final ActivationExpiredDateTime activationExpiredDateTime = ActivationExpiredDateTime.create(
-                LocalDateTime.now());
-
-        return Stream.of(
-                Arguments.of(member, null, activationExpiredDateTime),
-                Arguments.of(null, deviceIdentifier, activationExpiredDateTime),
-                Arguments.of(member, deviceIdentifier, null),
-                Arguments.of(null, null, null)
-        );
     }
 
     @Test

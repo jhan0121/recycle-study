@@ -24,6 +24,8 @@ public class ActivationExpiredDateTime {
 
     private static final Duration EXPIRE_TIME_RATE = Duration.ofMinutes(5);
 
+    private LocalDateTime value;
+
     public static ActivationExpiredDateTime create(final LocalDateTime currentTime) {
         validateNotNull(currentTime);
         return new ActivationExpiredDateTime(currentTime.plusMinutes(EXPIRE_TIME_RATE.toMinutes()));
@@ -34,8 +36,6 @@ public class ActivationExpiredDateTime {
                 .add(Fields.value, currentTime)
                 .validate();
     }
-
-    private LocalDateTime value;
 
     public void checkExpired(final LocalDateTime currentTime) {
         if (currentTime.isAfter(value)) {

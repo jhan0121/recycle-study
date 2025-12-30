@@ -20,7 +20,7 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 public abstract class APIBaseTest {
 
     protected static final String DEFAULT_REST_DOC_PATH = "{class_name}/{method_name}/";
-    
+
     protected RequestSpecification spec;
 
     @LocalServerPort
