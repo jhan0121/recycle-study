@@ -2,10 +2,14 @@ package com.recyclestudy.review.domain;
 
 import com.recyclestudy.common.BaseEntity;
 import com.recyclestudy.common.NullValidator;
+import com.recyclestudy.member.domain.Member;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,16 +25,21 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 public class Review extends BaseEntity {
 
-    public static Review withoutId(final ReviewURL url) {
-        validateNotNull(url);
-        return new Review(url);
+    public static Review withoutId(final Member member, final ReviewURL url) {
+        validateNotNull(member, url);
+        return new Review(member, url);
     }
 
-    private static void validateNotNull(final ReviewURL url) {
+    private static void validateNotNull(final Member member, final ReviewURL url) {
         NullValidator.builder()
+                .add(Fields.member, member)
                 .add(Fields.url, url)
                 .validate();
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "url", nullable = false, columnDefinition = "TEXT"))

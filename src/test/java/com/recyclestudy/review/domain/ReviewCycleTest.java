@@ -1,5 +1,7 @@
 package com.recyclestudy.review.domain;
 
+import com.recyclestudy.member.domain.Email;
+import com.recyclestudy.member.domain.Member;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +19,9 @@ class ReviewCycleTest {
     @DisplayName("ReviewCycle을 생성할 수 있다")
     void withoutId() {
         // given
-        final Review review = Review.withoutId(ReviewURL.from("https://test.com"));
+        final Email email = Email.from("test@test.com");
+        final Member member = Member.withoutId(email);
+        final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
         final LocalDateTime scheduledAt = LocalDateTime.now();
         final NotificationStatus status = NotificationStatus.PENDING;
 
@@ -33,16 +37,22 @@ class ReviewCycleTest {
     @ParameterizedTest
     @MethodSource("provideInvalidValue")
     @DisplayName("null로 생성 시도 시, 예외를 던진다")
-    void throwExceptionWhenNull(final Review review, final LocalDateTime scheduledAt,
-                                final NotificationStatus status) {
+    void throwExceptionWhenNull(
+            final Review review,
+            final LocalDateTime scheduledAt,
+            final NotificationStatus status
+    ) {
         // given
-        // when & then
+        // when
+        // then
         assertThatThrownBy(() -> ReviewCycle.withoutId(review, scheduledAt, status))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static Stream<Arguments> provideInvalidValue() {
-        final Review review = Review.withoutId(ReviewURL.from("https://test.com"));
+        final Email email = Email.from("test@test.com");
+        final Member member = Member.withoutId(email);
+        final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
         final LocalDateTime scheduledAt = LocalDateTime.now();
         final NotificationStatus status = NotificationStatus.PENDING;
 

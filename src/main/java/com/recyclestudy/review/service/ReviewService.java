@@ -34,7 +34,7 @@ public class ReviewService {
                 .orElseThrow(() -> new UnauthorizedException("유효하지 않은 디바이스입니다"));
         checkValidDevice(device);
 
-        final Review review = Review.withoutId(input.url());
+        final Review review = Review.withoutId(device.getMember(), input.url());
         final Review savedReview = reviewRepository.save(review);
 
         final LocalDate current = LocalDate.now(clock);
@@ -44,9 +44,11 @@ public class ReviewService {
                 .map(scheduledAt -> ReviewCycle.withoutId(savedReview, scheduledAt, NotificationStatus.PENDING))
                 .toList();
 
-        final List<LocalDateTime> savedScheduledAts = reviewCycleRepository.saveAll(reviewCycles)
-                .stream().map(ReviewCycle::getScheduledAt)
+        final List<ReviewCycle> savedReviewCycles = reviewCycleRepository.saveAll(reviewCycles);
+        final List<LocalDateTime> savedScheduledAts = savedReviewCycles.stream()
+                .map(ReviewCycle::getScheduledAt)
                 .toList();
+
         return ReviewSaveOutput.of(savedReview.getUrl(), savedScheduledAts);
     }
 

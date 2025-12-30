@@ -77,7 +77,9 @@ class ReviewServiceTest {
                 ActivationExpiredDateTime.create(now)
         );
 
-        final Review review = Review.withoutId(ReviewURL.from(urlValue));
+        final Email email = Email.from("test@test.com");
+        final Member member = Member.withoutId(email);
+        final Review review = Review.withoutId(member, ReviewURL.from(urlValue));
         final ReviewCycle cycle = ReviewCycle.withoutId(review, now.plusDays(1), NotificationStatus.PENDING);
 
         given(deviceRepository.findByIdentifier(any())).willReturn(Optional.of(device));

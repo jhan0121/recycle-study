@@ -45,7 +45,8 @@ class DeviceControllerTest extends APIBaseTest {
 
         doNothing().when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         resource(
@@ -89,7 +90,8 @@ class DeviceControllerTest extends APIBaseTest {
         doThrow(new BadRequestException("이미 인증되었습니다"))
                 .when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -120,7 +122,8 @@ class DeviceControllerTest extends APIBaseTest {
         final String invalidEmail = "invalid-email";
         final String identifier = "device-identifier";
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -154,7 +157,8 @@ class DeviceControllerTest extends APIBaseTest {
         doThrow(new DeviceActivationExpiredException("인증 유효 시간이 만료되었습니다."))
                 .when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -186,7 +190,8 @@ class DeviceControllerTest extends APIBaseTest {
 
         doNothing().when(memberService).deleteDevice(any());
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -217,7 +222,8 @@ class DeviceControllerTest extends APIBaseTest {
         doThrow(new UnauthorizedException("유효하지 않은 디바이스 아이디입니다"))
                 .when(memberService).deleteDevice(any());
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -252,7 +258,8 @@ class DeviceControllerTest extends APIBaseTest {
         doThrow(new BadRequestException("디바이스 소유자가 아닙니다."))
                 .when(memberService).deleteDevice(any());
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -288,7 +295,8 @@ class DeviceControllerTest extends APIBaseTest {
         doThrow(new NotFoundException("존재하지 않는 멤버입니다"))
                 .when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -322,7 +330,8 @@ class DeviceControllerTest extends APIBaseTest {
         doThrow(new NotFoundException("존재하지 않는 디바이스 아이디입니다"))
                 .when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -356,7 +365,8 @@ class DeviceControllerTest extends APIBaseTest {
         doThrow(new BadRequestException("디바이스 소유자가 아닙니다."))
                 .when(memberService).authenticateDevice(any(Email.class), any(DeviceIdentifier.class));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -386,7 +396,8 @@ class DeviceControllerTest extends APIBaseTest {
         // given
         final String identifier = "device-identifier";
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -413,7 +424,8 @@ class DeviceControllerTest extends APIBaseTest {
         // given
         final String email = "test@test.com";
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -441,7 +453,8 @@ class DeviceControllerTest extends APIBaseTest {
         // given
         final DeviceDeleteRequest request = new DeviceDeleteRequest(null, "device-id", "target-id");
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -473,7 +486,8 @@ class DeviceControllerTest extends APIBaseTest {
         // given
         final DeviceDeleteRequest request = new DeviceDeleteRequest("test@test.com", null, "target-id");
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -505,7 +519,8 @@ class DeviceControllerTest extends APIBaseTest {
         // given
         final DeviceDeleteRequest request = new DeviceDeleteRequest("test@test.com", "device-id", null);
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()

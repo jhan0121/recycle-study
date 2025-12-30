@@ -96,7 +96,8 @@ class DeviceTest {
                 ActivationExpiredDateTime.create(now)
         );
 
-        // when & then
+        // when
+        // then
         final LocalDateTime expiredTime = now.plusMinutes(6);
         assertThatThrownBy(() -> device.activate(expiredTime))
                 .isInstanceOf(RuntimeException.class);
@@ -114,7 +115,8 @@ class DeviceTest {
                 ActivationExpiredDateTime.create(LocalDateTime.now())
         );
 
-        // when & then
+        // when
+        // then
         assertThatCode(() -> device.verifyOwner(email))
                 .doesNotThrowAnyException();
     }
@@ -131,7 +133,8 @@ class DeviceTest {
                 ActivationExpiredDateTime.create(LocalDateTime.now())
         );
 
-        // when & then
+        // when
+        // then
         final Email otherEmail = Email.from("other@test.com");
         assertThatThrownBy(() -> device.verifyOwner(otherEmail))
                 .isInstanceOf(RuntimeException.class)

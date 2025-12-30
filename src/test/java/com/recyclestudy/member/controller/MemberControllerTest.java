@@ -50,7 +50,8 @@ class MemberControllerTest extends APIBaseTest {
 
         given(memberService.saveDevice(any())).willReturn(output);
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -100,7 +101,8 @@ class MemberControllerTest extends APIBaseTest {
 
         given(memberService.findAllMemberDevices(any())).willReturn(output);
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -143,7 +145,8 @@ class MemberControllerTest extends APIBaseTest {
         given(memberService.findAllMemberDevices(any()))
                 .willThrow(new NotFoundException("존재하지 않는 멤버입니다"));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -181,7 +184,8 @@ class MemberControllerTest extends APIBaseTest {
         given(memberService.findAllMemberDevices(any()))
                 .willThrow(new UnauthorizedException("인증되지 않은 디바이스입니다"));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -216,7 +220,8 @@ class MemberControllerTest extends APIBaseTest {
         final String invalidEmail = "invalid-email";
         final String identifier = "device-identifier";
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -250,7 +255,8 @@ class MemberControllerTest extends APIBaseTest {
         // given
         final MemberSaveRequest request = new MemberSaveRequest(null);
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -280,7 +286,8 @@ class MemberControllerTest extends APIBaseTest {
         final String invalidEmail = "invalid-email";
         final MemberSaveRequest request = new MemberSaveRequest(invalidEmail);
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -313,7 +320,8 @@ class MemberControllerTest extends APIBaseTest {
         given(memberService.findAllMemberDevices(any()))
                 .willThrow(new NotFoundException("존재하지 않는 디바이스 아이디입니다"));
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -347,7 +355,8 @@ class MemberControllerTest extends APIBaseTest {
         // given
         final String identifier = "device-identifier";
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
@@ -377,7 +386,8 @@ class MemberControllerTest extends APIBaseTest {
         // given
         final String email = "test@test.com";
 
-        // when & then
+        // when
+        // then
         given(this.spec)
                 .filter(document(DEFAULT_REST_DOC_PATH,
                         builder()
