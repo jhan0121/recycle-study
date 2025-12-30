@@ -14,7 +14,7 @@ public record ReviewSendOutput(List<ReviewSendElement> elements) {
                         cycle -> cycle.getReview().getMember().getEmail(),
                         Collectors.mapping(
                                 cycle -> cycle.getReview().getUrl(),
-                                Collectors.toList()
+                                Collectors.toUnmodifiableList()
                         )
                 ))
                 .entrySet().stream()
