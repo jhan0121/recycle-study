@@ -237,7 +237,8 @@ class MemberServiceTest {
         given(memberRepository.existsByEmail(otherEmail)).willReturn(true);
         given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.of(device));
 
-        // when & then
+        // when
+        // then
         assertThatThrownBy(() -> memberService.authenticateDevice(otherEmail, deviceIdentifier))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("디바이스 소유자가 아닙니다.");
@@ -275,7 +276,8 @@ class MemberServiceTest {
 
         given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.empty());
 
-        // when & then
+        // when
+        // then
         assertThatThrownBy(() -> memberService.deleteDevice(input))
                 .isInstanceOf(UnauthorizedException.class);
     }
@@ -294,7 +296,8 @@ class MemberServiceTest {
 
         given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.of(device));
 
-        // when & then
+        // when
+        // then
         assertThatThrownBy(() -> memberService.deleteDevice(input))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("디바이스 소유자가 아닙니다.");

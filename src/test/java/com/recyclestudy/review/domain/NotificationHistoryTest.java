@@ -10,52 +10,57 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-class ReviewCycleTest {
+class NotificationHistoryTest {
 
     private static Stream<Arguments> provideInvalidValue() {
-        final Email email = Email.from("test@test.com");
-        final Member member = Member.withoutId(email);
-        final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
-        final LocalDateTime scheduledAt = LocalDateTime.now();
+        final ReviewCycle reviewCycle = createReviewCycle();
+        final NotificationStatus status = NotificationStatus.PENDING;
 
         return Stream.of(
-                Arguments.of(null, scheduledAt),
-                Arguments.of(review, null),
+                Arguments.of(null, status),
+                Arguments.of(reviewCycle, null),
                 Arguments.of(null, null)
         );
     }
 
-    @Test
-    @DisplayName("ReviewCycle을 생성할 수 있다")
-    void withoutId() {
-        // given
+    private static ReviewCycle createReviewCycle() {
         final Email email = Email.from("test@test.com");
         final Member member = Member.withoutId(email);
         final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
-        final LocalDateTime scheduledAt = LocalDateTime.now();
+        return ReviewCycle.withoutId(review, LocalDateTime.now());
+    }
+
+    @Test
+    @DisplayName("NotificationHistory를 생성할 수 있다")
+    void withoutId() {
+        // given
+        final ReviewCycle reviewCycle = createReviewCycle();
+        final NotificationStatus status = NotificationStatus.PENDING;
 
         // when
-        final ReviewCycle actual = ReviewCycle.withoutId(review, scheduledAt);
+        final NotificationHistory actual = NotificationHistory.withoutId(reviewCycle, status);
 
         // then
-        assertThat(actual.getReview()).isEqualTo(review);
-        assertThat(actual.getScheduledAt()).isEqualTo(scheduledAt);
+        assertSoftly(softAssertions -> {
+            softAssertions.assertThat(actual.getReviewCycle()).isEqualTo(reviewCycle);
+            softAssertions.assertThat(actual.getStatus()).isEqualTo(status);
+        });
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidValue")
     @DisplayName("null로 생성 시도 시, 예외를 던진다")
     void throwExceptionWhenNull(
-            final Review review,
-            final LocalDateTime scheduledAt
+            final ReviewCycle reviewCycle,
+            final NotificationStatus status
     ) {
         // given
         // when
         // then
-        assertThatThrownBy(() -> ReviewCycle.withoutId(review, scheduledAt))
+        assertThatThrownBy(() -> NotificationHistory.withoutId(reviewCycle, status))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }

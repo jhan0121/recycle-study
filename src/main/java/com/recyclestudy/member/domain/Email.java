@@ -23,6 +23,8 @@ public class Email {
     private static final String EMAIL_FORMAT = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_FORMAT);
 
+    private String value;
+
     public static Email from(final String value) {
         validateNotNull(value);
         validateEmailFormat(value);
@@ -40,6 +42,4 @@ public class Email {
             throw new IllegalArgumentException("유효하지 않은 이메일 형식입니다.");
         }
     }
-
-    private String value;
 }

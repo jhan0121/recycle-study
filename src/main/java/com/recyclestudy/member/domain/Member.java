@@ -21,6 +21,10 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 public class Member extends BaseEntity {
 
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "email", nullable = false, unique = true))
+    private Email email;
+
     public static Member withoutId(final Email email) {
         validateNotNull(email);
         return new Member(email);
@@ -31,10 +35,6 @@ public class Member extends BaseEntity {
                 .add(Fields.email, email)
                 .validate();
     }
-
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "email", nullable = false, unique = true))
-    private Email email;
 
     public boolean hasEmail(final Email email) {
         return this.email.equals(email);

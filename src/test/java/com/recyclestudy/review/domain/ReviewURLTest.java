@@ -25,7 +25,8 @@ class ReviewURLTest {
     @DisplayName("null로 생성 시도 시, 예외를 던진다")
     void throwExceptionWhenNull() {
         // given
-        // when & then
+        // when
+        // then
         assertThatThrownBy(() -> ReviewURL.from(null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
