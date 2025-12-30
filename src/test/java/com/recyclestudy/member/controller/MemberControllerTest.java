@@ -1,6 +1,6 @@
 package com.recyclestudy.member.controller;
 
-import com.recyclestudy.email.EmailService;
+import com.recyclestudy.email.DeviceAuthEmailSender;
 import com.recyclestudy.exception.NotFoundException;
 import com.recyclestudy.exception.UnauthorizedException;
 import com.recyclestudy.member.controller.request.MemberSaveRequest;
@@ -37,7 +37,7 @@ class MemberControllerTest extends APIBaseTest {
     private MemberService memberService;
 
     @MockitoBean
-    private EmailService emailService;
+    private DeviceAuthEmailSender deviceAuthEmailSender;
 
     @Test
     @DisplayName("이메일을 통해 새로운 디바이스를 저장한다")
@@ -75,7 +75,7 @@ class MemberControllerTest extends APIBaseTest {
                 .body("email", equalTo(email))
                 .body("identifier", equalTo(identifier));
 
-        verify(emailService).sendDeviceAuthMail(email, identifier);
+        verify(deviceAuthEmailSender).sendDeviceAuthMail(email, identifier);
     }
 
     @Test

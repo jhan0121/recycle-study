@@ -1,6 +1,6 @@
 package com.recyclestudy.member.controller;
 
-import com.recyclestudy.email.EmailService;
+import com.recyclestudy.email.DeviceAuthEmailSender;
 import com.recyclestudy.member.controller.request.MemberSaveRequest;
 import com.recyclestudy.member.controller.response.MemberFindResponse;
 import com.recyclestudy.member.controller.response.MemberSaveResponse;
@@ -25,14 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
-    private final EmailService emailService;
+    private final DeviceAuthEmailSender deviceAuthEmailSender;
 
     @PostMapping
     public ResponseEntity<MemberSaveResponse> saveMember(@RequestBody final MemberSaveRequest request) {
         final MemberSaveInput input = request.toInput();
         final MemberSaveOutput output = memberService.saveDevice(input);
 
-        emailService.sendDeviceAuthMail(output.email().getValue(), output.identifier().getValue());
+        deviceAuthEmailSender.sendDeviceAuthMail(output.email().getValue(), output.identifier().getValue());
 
         final MemberSaveResponse response = MemberSaveResponse.from(output);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
