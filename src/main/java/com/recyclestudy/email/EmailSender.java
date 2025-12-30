@@ -16,21 +16,21 @@ public class EmailSender {
 
     private final JavaMailSender javaMailSender;
 
-    public void send(final String to, final String subject, final String content) {
+    public void send(final String targetEmail, final String subject, final String content) {
         try {
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
-            helper.setTo(to);
+            helper.setTo(targetEmail);
             helper.setSubject(subject);
             helper.setText(content, true);
 
             javaMailSender.send(mimeMessage);
 
-            log.info("메일 발송 성공: to={}", to);
+            log.info("메일 발송 성공: email={}", targetEmail);
 
         } catch (MessagingException e) {
-            log.error("메일 전송 실패. to={}", to, e);
+            log.error("메일 발송 실패: email={}", targetEmail, e);
             throw new EmailSendException("메일 전송 중 오류가 발생했습니다.", e);
         }
     }

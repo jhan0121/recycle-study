@@ -7,10 +7,12 @@ import com.recyclestudy.member.domain.DeviceIdentifier;
 import com.recyclestudy.member.domain.Email;
 import com.recyclestudy.member.domain.Member;
 import com.recyclestudy.member.repository.DeviceRepository;
+import com.recyclestudy.review.domain.NotificationHistory;
 import com.recyclestudy.review.domain.NotificationStatus;
 import com.recyclestudy.review.domain.Review;
 import com.recyclestudy.review.domain.ReviewCycle;
 import com.recyclestudy.review.domain.ReviewURL;
+import com.recyclestudy.review.repository.NotificationHistoryRepository;
 import com.recyclestudy.review.repository.ReviewCycleRepository;
 import com.recyclestudy.review.repository.ReviewRepository;
 import com.recyclestudy.review.service.input.ReviewSaveInput;
@@ -25,13 +27,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
@@ -48,6 +51,9 @@ class ReviewServiceTest {
 
     @Mock
     DeviceRepository deviceRepository;
+
+    @Mock
+    NotificationHistoryRepository notificationHistoryRepository;
 
     @Spy
     Clock clock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneId.of("UTC"));
@@ -80,7 +86,7 @@ class ReviewServiceTest {
         final Email email = Email.from("test@test.com");
         final Member member = Member.withoutId(email);
         final Review review = Review.withoutId(member, ReviewURL.from(urlValue));
-        final ReviewCycle cycle = ReviewCycle.withoutId(review, now.plusDays(1), NotificationStatus.PENDING);
+        final ReviewCycle cycle = ReviewCycle.withoutId(review, now.plusDays(1));
 
         given(deviceRepository.findByIdentifier(any())).willReturn(Optional.of(device));
         given(reviewRepository.save(any(Review.class))).willReturn(review);
@@ -90,8 +96,15 @@ class ReviewServiceTest {
         final ReviewSaveOutput actual = reviewService.saveReview(input);
 
         // then
-        assertThat(actual.url()).isEqualTo(ReviewURL.from(urlValue));
-        assertThat(actual.scheduledAts()).hasSize(1);
+        final ArgumentCaptor<List<NotificationHistory>> captor = ArgumentCaptor.forClass(List.class);
+        verify(notificationHistoryRepository).saveAll(captor.capture());
+
+        assertSoftly(softAssertions -> {
+            softAssertions.assertThat(actual.url()).isEqualTo(ReviewURL.from(urlValue));
+            softAssertions.assertThat(actual.scheduledAts()).hasSize(1);
+            softAssertions.assertThat(captor.getValue()).allMatch(h -> h.getStatus() == NotificationStatus.PENDING);
+        });
+
         verify(deviceRepository).findByIdentifier(any());
         verify(reviewRepository).save(any(Review.class));
         verify(reviewCycleRepository).saveAll(anyList());
@@ -104,7 +117,8 @@ class ReviewServiceTest {
         final ReviewSaveInput input = ReviewSaveInput.of("not-found", "https://test.com");
         given(deviceRepository.findByIdentifier(any())).willReturn(Optional.empty());
 
-        // when & then
+        // when
+        // then
         assertThatThrownBy(() -> reviewService.saveReview(input))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("유효하지 않은 디바이스입니다");
@@ -126,7 +140,8 @@ class ReviewServiceTest {
 
         given(deviceRepository.findByIdentifier(any())).willReturn(Optional.of(inactiveDevice));
 
-        // when & then
+        // when
+        // then
         assertThatThrownBy(() -> reviewService.saveReview(input))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("인증되지 않은 디바이스입니다");

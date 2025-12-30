@@ -23,15 +23,13 @@ class ReviewCycleTest {
         final Member member = Member.withoutId(email);
         final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
         final LocalDateTime scheduledAt = LocalDateTime.now();
-        final NotificationStatus status = NotificationStatus.PENDING;
 
         // when
-        final ReviewCycle actual = ReviewCycle.withoutId(review, scheduledAt, status);
+        final ReviewCycle actual = ReviewCycle.withoutId(review, scheduledAt);
 
         // then
         assertThat(actual.getReview()).isEqualTo(review);
         assertThat(actual.getScheduledAt()).isEqualTo(scheduledAt);
-        assertThat(actual.getStatus()).isEqualTo(status);
     }
 
     @ParameterizedTest
@@ -39,13 +37,12 @@ class ReviewCycleTest {
     @DisplayName("null로 생성 시도 시, 예외를 던진다")
     void throwExceptionWhenNull(
             final Review review,
-            final LocalDateTime scheduledAt,
-            final NotificationStatus status
+            final LocalDateTime scheduledAt
     ) {
         // given
         // when
         // then
-        assertThatThrownBy(() -> ReviewCycle.withoutId(review, scheduledAt, status))
+        assertThatThrownBy(() -> ReviewCycle.withoutId(review, scheduledAt))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -54,13 +51,11 @@ class ReviewCycleTest {
         final Member member = Member.withoutId(email);
         final Review review = Review.withoutId(member, ReviewURL.from("https://test.com"));
         final LocalDateTime scheduledAt = LocalDateTime.now();
-        final NotificationStatus status = NotificationStatus.PENDING;
 
         return Stream.of(
-                Arguments.of(null, scheduledAt, status),
-                Arguments.of(review, null, status),
-                Arguments.of(review, scheduledAt, null),
-                Arguments.of(null, null, null)
+                Arguments.of(null, scheduledAt),
+                Arguments.of(review, null),
+                Arguments.of(null, null)
         );
     }
 }

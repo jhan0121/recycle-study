@@ -2,7 +2,6 @@ package com.recyclestudy.review.service;
 
 import com.recyclestudy.member.domain.Email;
 import com.recyclestudy.member.domain.Member;
-import com.recyclestudy.review.domain.NotificationStatus;
 import com.recyclestudy.review.domain.Review;
 import com.recyclestudy.review.domain.ReviewCycle;
 import com.recyclestudy.review.domain.ReviewURL;
@@ -21,9 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.assertj.core.api.SoftAssertions;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -48,7 +46,7 @@ class ReviewCycleServiceTest {
 
         final Member member = Member.withoutId(Email.from("user@test.com"));
         final Review review = Review.withoutId(member, ReviewURL.from("https://example.com/article"));
-        final ReviewCycle reviewCycle = ReviewCycle.withoutId(review, scheduledAt, NotificationStatus.PENDING);
+        final ReviewCycle reviewCycle = ReviewCycle.withoutId(review, scheduledAt);
 
         given(reviewCycleRepository.findAllByScheduledAt(scheduledAt)).willReturn(List.of(reviewCycle));
 
@@ -56,7 +54,7 @@ class ReviewCycleServiceTest {
         final ReviewSendOutput result = reviewCycleService.findTargetReviewCycle(input);
 
         // then
-        SoftAssertions.assertSoftly(softAssertions -> {
+        assertSoftly(softAssertions -> {
             softAssertions.assertThat(result.elements()).hasSize(1);
             softAssertions.assertThat(result.elements().getFirst().email()).isEqualTo(Email.from("user@test.com"));
         });
@@ -95,8 +93,8 @@ class ReviewCycleServiceTest {
         final Member member = Member.withoutId(Email.from("user@test.com"));
         final Review review1 = Review.withoutId(member, ReviewURL.from("https://example.com/article1"));
         final Review review2 = Review.withoutId(member, ReviewURL.from("https://example.com/article2"));
-        final ReviewCycle cycle1 = ReviewCycle.withoutId(review1, scheduledAt, NotificationStatus.PENDING);
-        final ReviewCycle cycle2 = ReviewCycle.withoutId(review2, scheduledAt, NotificationStatus.PENDING);
+        final ReviewCycle cycle1 = ReviewCycle.withoutId(review1, scheduledAt);
+        final ReviewCycle cycle2 = ReviewCycle.withoutId(review2, scheduledAt);
 
         given(reviewCycleRepository.findAllByScheduledAt(scheduledAt)).willReturn(List.of(cycle1, cycle2));
 
@@ -104,7 +102,7 @@ class ReviewCycleServiceTest {
         final ReviewSendOutput result = reviewCycleService.findTargetReviewCycle(input);
 
         // then
-        SoftAssertions.assertSoftly(softAssertions -> {
+        assertSoftly(softAssertions -> {
             softAssertions.assertThat(result.elements()).hasSize(1);
 
             final ReviewSendElement element = result.elements().getFirst();
@@ -127,8 +125,8 @@ class ReviewCycleServiceTest {
         final Member member2 = Member.withoutId(Email.from("user2@test.com"));
         final Review review1 = Review.withoutId(member1, ReviewURL.from("https://example.com/article1"));
         final Review review2 = Review.withoutId(member2, ReviewURL.from("https://example.com/article2"));
-        final ReviewCycle cycle1 = ReviewCycle.withoutId(review1, scheduledAt, NotificationStatus.PENDING);
-        final ReviewCycle cycle2 = ReviewCycle.withoutId(review2, scheduledAt, NotificationStatus.PENDING);
+        final ReviewCycle cycle1 = ReviewCycle.withoutId(review1, scheduledAt);
+        final ReviewCycle cycle2 = ReviewCycle.withoutId(review2, scheduledAt);
 
         given(reviewCycleRepository.findAllByScheduledAt(scheduledAt)).willReturn(List.of(cycle1, cycle2));
 
@@ -136,7 +134,7 @@ class ReviewCycleServiceTest {
         final ReviewSendOutput result = reviewCycleService.findTargetReviewCycle(input);
 
         // then
-        SoftAssertions.assertSoftly(softAssertions -> {
+        assertSoftly(softAssertions -> {
             softAssertions.assertThat(result.elements()).hasSize(2);
 
             final List<Email> emails = result.elements().stream()
