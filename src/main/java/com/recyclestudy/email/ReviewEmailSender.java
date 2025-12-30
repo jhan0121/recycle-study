@@ -30,7 +30,7 @@ public class ReviewEmailSender {
     private final NotificationHistoryService notificationHistoryService;
     private final Clock clock;
 
-    @Scheduled(cron = "0 0 8 * * *")
+    @Scheduled(cron = "0 0 8 * * *", zone = "Asia/Seoul")
     public void sendReviewMail() {
 
         final LocalDate targetDate = LocalDate.now(clock);
