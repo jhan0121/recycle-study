@@ -1,6 +1,7 @@
 package com.recyclestudy.email;
 
 import com.recyclestudy.member.domain.Email;
+import com.recyclestudy.review.domain.NotificationStatus;
 import com.recyclestudy.review.domain.ReviewURL;
 import com.recyclestudy.review.service.NotificationHistoryService;
 import com.recyclestudy.review.service.ReviewCycleService;
@@ -25,6 +26,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -150,5 +152,50 @@ class ReviewEmailSenderTest {
             softAssertions.assertThat(capturedUrls.getFirst().getValue()).isEqualTo("https://example.com/article1");
             softAssertions.assertThat(capturedUrls.get(1).getValue()).isEqualTo("https://example.com/article2");
         });
+    }
+
+    @Test
+    @DisplayName("메일 발송 성공 시 SENT 상태로 저장한다")
+    void sendReviewMail_success_savesSentStatus() {
+        // given
+        final List<Long> reviewCycleIds = List.of(1L, 2L);
+        final ReviewSendElement element = ReviewSendElement.of(
+                Email.from("user@test.com"),
+                reviewCycleIds,
+                List.of(ReviewURL.from("https://example.com/article"))
+        );
+        final ReviewSendOutput output = new ReviewSendOutput(List.of(element));
+
+        given(reviewCycleService.findTargetReviewCycle(any())).willReturn(output);
+        given(templateEngine.process(eq("review_email"), any(Context.class))).willReturn("<html></html>");
+
+        // when
+        reviewEmailSender.sendReviewMail();
+
+        // then
+        verify(notificationHistoryService).saveAll(reviewCycleIds, NotificationStatus.SENT);
+    }
+
+    @Test
+    @DisplayName("메일 발송 실패 시 FAILED 상태로 저장한다")
+    void sendReviewMail_failure_savesFailedStatus() {
+        // given
+        final List<Long> reviewCycleIds = List.of(1L, 2L);
+        final ReviewSendElement element = ReviewSendElement.of(
+                Email.from("user@test.com"),
+                reviewCycleIds,
+                List.of(ReviewURL.from("https://example.com/article"))
+        );
+        final ReviewSendOutput output = new ReviewSendOutput(List.of(element));
+
+        given(reviewCycleService.findTargetReviewCycle(any())).willReturn(output);
+        given(templateEngine.process(eq("review_email"), any(Context.class))).willReturn("<html></html>");
+        willThrow(new RuntimeException("메일 발송 실패")).given(emailSender).send(any(), any(), any());
+
+        // when
+        reviewEmailSender.sendReviewMail();
+
+        // then
+        verify(notificationHistoryService).saveAll(reviewCycleIds, NotificationStatus.FAILED);
     }
 }
