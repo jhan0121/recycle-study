@@ -3,6 +3,7 @@ package com.recyclestudy.member.domain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -71,5 +72,27 @@ class EmailTest {
         assertThatThrownBy(() -> Email.from(invalidValue))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("유효하지 않은 이메일 형식입니다.");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "a@test.com, a*@test.com",
+            "ab@test.com, a*@test.com",
+            "abc@test.com, a**@test.com",
+            "john@test.com, jo**@test.com",
+            "hello@test.com, he***@test.com",
+            "longname@test.com, lon*****@test.com",
+            "test1234@test.com, tes*****@test.com"
+    })
+    @DisplayName("toMaskedValue 메서드를 활용하여 이메일을 마스킹할 수 있다")
+    void toMaskedValue(final String originValue, final String expectedValue) {
+        // given
+        final Email email = Email.from(originValue);
+
+        // when
+        final String actual = email.toMaskedValue();
+
+        // then
+        assertThat(actual).isEqualTo(expectedValue);
     }
 }

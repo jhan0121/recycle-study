@@ -7,11 +7,13 @@ import com.recyclestudy.review.repository.NotificationHistoryRepository;
 import com.recyclestudy.review.repository.ReviewCycleRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationHistoryService {
 
     private final NotificationHistoryRepository notificationHistoryRepository;
@@ -26,5 +28,6 @@ public class NotificationHistoryService {
                 .toList();
 
         notificationHistoryRepository.saveAll(histories);
+        log.info("[NOTIFY_HIST_UPDATED] 알림 이력 상태 변경: status={}, count={}", status, histories.size());
     }
 }
