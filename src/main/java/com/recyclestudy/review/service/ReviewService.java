@@ -55,7 +55,8 @@ public class ReviewService {
         final List<LocalDateTime> savedScheduledAts = savedReviewCycles.stream()
                 .map(ReviewCycle::getScheduledAt)
                 .toList();
-        log.info("[REVIEW_CYCLE_SAVED] 복습 주기 저장 성공: reviewCycle={}", savedReviewCycles);
+        log.info("[REVIEW_CYCLE_SAVED] 복습 주기 저장 성공: reviewCycleId={}",
+                savedReviewCycles.stream().map(BaseEntity::getId).toList());
 
         savePendingNotificationHistory(savedReviewCycles);
 
