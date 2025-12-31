@@ -1,5 +1,7 @@
 package com.recyclestudy.email;
 
+import com.recyclestudy.member.domain.DeviceIdentifier;
+import com.recyclestudy.member.domain.Email;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,14 +40,14 @@ class DeviceAuthEmailSenderTest {
     @DisplayName("디바이스 인증 메일을 발송한다")
     void sendDeviceAuthMail_success() {
         // given
-        final String email = "test@test.com";
-        final String deviceId = "device-123";
+        final Email email = Email.from("test@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("device-123");
         final String expectedHtml = "<html>인증 링크</html>";
 
         given(templateEngine.process(eq("auth_email"), any(Context.class))).willReturn(expectedHtml);
 
         // when
-        deviceAuthEmailSender.sendDeviceAuthMail(email, deviceId);
+        deviceAuthEmailSender.sendDeviceAuthMail(email, deviceIdentifier);
 
         // then
         verify(emailSender).send(
@@ -59,14 +61,14 @@ class DeviceAuthEmailSenderTest {
     @DisplayName("올바른 인증 URL이 템플릿에 전달된다")
     void sendDeviceAuthMail_correctAuthUrl() {
         // given
-        final String email = "test@test.com";
-        final String deviceId = "device-123";
+        final Email email = Email.from("test@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("device-123");
         final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
 
         given(templateEngine.process(eq("auth_email"), any(Context.class))).willReturn("<html></html>");
 
         // when
-        deviceAuthEmailSender.sendDeviceAuthMail(email, deviceId);
+        deviceAuthEmailSender.sendDeviceAuthMail(email, deviceIdentifier);
 
         // then
         verify(templateEngine).process(eq("auth_email"), contextCaptor.capture());

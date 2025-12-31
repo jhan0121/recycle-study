@@ -75,7 +75,7 @@ class MemberControllerTest extends APIBaseTest {
                 .body("email", equalTo(email))
                 .body("identifier", equalTo(identifier));
 
-        verify(deviceAuthEmailSender).sendDeviceAuthMail(email, identifier);
+        verify(deviceAuthEmailSender).sendDeviceAuthMail(Email.from(email), DeviceIdentifier.from(identifier));
     }
 
     @Test

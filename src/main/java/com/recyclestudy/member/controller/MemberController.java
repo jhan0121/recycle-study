@@ -32,7 +32,7 @@ public class MemberController {
         final MemberSaveInput input = request.toInput();
         final MemberSaveOutput output = memberService.saveDevice(input);
 
-        deviceAuthEmailSender.sendDeviceAuthMail(output.email().getValue(), output.identifier().getValue());
+        deviceAuthEmailSender.sendDeviceAuthMail(output.email(), output.identifier());
 
         final MemberSaveResponse response = MemberSaveResponse.from(output);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

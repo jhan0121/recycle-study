@@ -1,5 +1,6 @@
 package com.recyclestudy.review.service;
 
+import com.recyclestudy.common.BaseEntity;
 import com.recyclestudy.exception.UnauthorizedException;
 import com.recyclestudy.member.domain.Device;
 import com.recyclestudy.member.repository.DeviceRepository;
@@ -18,11 +19,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
@@ -39,6 +42,7 @@ public class ReviewService {
 
         final Review review = Review.withoutId(device.getMember(), input.url());
         final Review savedReview = reviewRepository.save(review);
+        log.info("[REVIEW_SAVED] 복습 주제 저장 성공: reviewId={}", savedReview.getId());
 
         final LocalDate current = LocalDate.now(clock);
         final List<LocalDateTime> scheduledAts = ReviewCycleDuration.calculate(current);
@@ -51,6 +55,8 @@ public class ReviewService {
         final List<LocalDateTime> savedScheduledAts = savedReviewCycles.stream()
                 .map(ReviewCycle::getScheduledAt)
                 .toList();
+        log.info("[REVIEW_CYCLE_SAVED] 복습 주기 저장 성공: reviewCycleId={}",
+                savedReviewCycles.stream().map(BaseEntity::getId).toList());
 
         savePendingNotificationHistory(savedReviewCycles);
 
@@ -67,6 +73,9 @@ public class ReviewService {
         final List<NotificationHistory> notificationHistories = savedReviewCycles.stream()
                 .map(reviewCycle -> NotificationHistory.withoutId(reviewCycle, NotificationStatus.PENDING))
                 .toList();
-        notificationHistoryRepository.saveAll(notificationHistories);
+        final List<NotificationHistory> savedNotificationHistories
+                = notificationHistoryRepository.saveAll(notificationHistories);
+        log.info("[NOTIFY_HIST_SAVED] 전송 현황 등록 성공: status={}, notificationHistoryId={}",
+                NotificationStatus.PENDING, savedNotificationHistories.stream().map(BaseEntity::getId).toList());
     }
 }
