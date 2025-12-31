@@ -40,7 +40,7 @@ public class ReviewEmailSender {
                 ReviewSendInput.from(targetDate, targetTime));
 
         final List<ReviewSendElement> elements = targetReviewCycle.elements();
-        log.info("복습 메일 발송 시작: 대상 {}명", elements.size());
+        log.info("[REVIEW_MAIL_SENT] 복습 메일 발송 시작: date={}, time={}, size={}", targetDate, targetTime, elements.size());
 
         int successCount = 0;
         int failCount = 0;
@@ -60,7 +60,7 @@ public class ReviewEmailSender {
             }
         }
 
-        log.info("복습 메일 발송 처리 완료: 성공 {}명, 실패 {}명", successCount, failCount);
+        log.info("[REVIEW_MAIL_SENT] 복습 메일 발송 처리 완료: success={}, fail={}", successCount, failCount);
     }
 
     private boolean sendToTargetEmail(final Email targetEmail, final String message) {
@@ -68,6 +68,7 @@ public class ReviewEmailSender {
             emailSender.send(targetEmail.getValue(), "[Recycle Study] 오늘의 복습 목록이 도착했습니다", message);
             return true;
         } catch (final Exception e) {
+            log.error("[REVIEW_MAIL_SEND_FAILED] 복습 메일 발송 실패: email={}", targetEmail.getValue(), e);
             return false;
         }
     }

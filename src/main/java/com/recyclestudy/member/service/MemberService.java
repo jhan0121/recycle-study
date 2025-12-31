@@ -20,11 +20,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -41,6 +43,7 @@ public class MemberService {
 
         final Device notSavedDevice = Device.withoutId(member, deviceIdentifier, false, activationExpiredDateTime);
         final Device device = deviceRepository.save(notSavedDevice);
+        log.info("[DEVICE_SAVED] 디바이스 저장 성공: {}", device.getIdentifier());
 
         return MemberSaveOutput.from(device);
     }
@@ -68,6 +71,7 @@ public class MemberService {
 
         device.verifyOwner(email);
         device.activate(LocalDateTime.now(clock));
+        log.info("[DEVICE_AUTH] 디바이스 인증 성공: email={}, device={}", email, deviceIdentifier);
     }
 
     @Transactional
@@ -77,6 +81,7 @@ public class MemberService {
                         .formatted(input.deviceIdentifier().getValue())));
         device.verifyOwner(input.email());
         deviceRepository.deleteByIdentifier(input.targetDeviceIdentifier());
+        log.info("[DEVICE_DELETED] 디바이스 삭제 성공: {}", input.targetDeviceIdentifier());
     }
 
     private Member saveNewMember(final Email email) {
@@ -86,8 +91,11 @@ public class MemberService {
             return memberOptional.get();
         }
 
+        log.info("[MEMBER_SAVED] 신규 유저 이메일 등록 시작: {}", email);
         final Member notSavedMember = Member.withoutId(email);
-        return memberRepository.save(notSavedMember);
+        final Member savedMember = memberRepository.save(notSavedMember);
+        log.info("[MEMBER_SAVED] 신규 유저 이메일 등록 성공: {}", email);
+        return savedMember;
     }
 
     private void checkExistedMember(final Email email) {

@@ -26,7 +26,7 @@ public class DeviceAuthEmailSender {
 
         emailSender.send(email, "[Recycle Study] 디바이스 인증을 완료해주세요.", message);
 
-        log.info("인증 메일 발송 성공: {}", email);
+        log.info("[AUTH_MAIL_SENT] 인증 메일 발송 성공: {}", email);
     }
 
     private String createAuthUrl(final String email, final String deviceId) {
