@@ -65,7 +65,7 @@ public class ReviewEmailSender {
 
     private boolean sendToTargetEmail(final Email targetEmail, final String message) {
         try {
-            emailSender.send(targetEmail.getValue(), "[Recycle Study] 오늘의 복습 목록이 도착했습니다", message);
+            emailSender.send(targetEmail, "[Recycle Study] 오늘의 복습 목록이 도착했습니다", message);
             return true;
         } catch (final Exception e) {
             log.error("[REVIEW_MAIL_SEND_FAILED] 복습 메일 발송 실패: email={}", targetEmail.getValue(), e);

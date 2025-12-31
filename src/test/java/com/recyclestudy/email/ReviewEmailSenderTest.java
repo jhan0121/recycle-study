@@ -73,7 +73,7 @@ class ReviewEmailSenderTest {
 
         // then
         verify(emailSender).send(
-                eq("user@test.com"),
+                eq(targetEmail),
                 eq("[Recycle Study] 오늘의 복습 목록이 도착했습니다"),
                 eq("<html>복습 목록</html>")
         );
@@ -102,9 +102,9 @@ class ReviewEmailSenderTest {
         reviewEmailSender.sendReviewMail();
 
         // then
-        verify(emailSender, times(2)).send(any(), any(), any());
-        verify(emailSender).send(eq("user1@test.com"), any(), any());
-        verify(emailSender).send(eq("user2@test.com"), any(), any());
+        verify(emailSender, times(2)).send(any(Email.class), any(), any());
+        verify(emailSender).send(eq(Email.from("user1@test.com")), any(), any());
+        verify(emailSender).send(eq(Email.from("user2@test.com")), any(), any());
     }
 
     @Test
@@ -119,7 +119,7 @@ class ReviewEmailSenderTest {
         reviewEmailSender.sendReviewMail();
 
         // then
-        verify(emailSender, never()).send(any(), any(), any());
+        verify(emailSender, never()).send(any(Email.class), any(), any());
     }
 
     @Test

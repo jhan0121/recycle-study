@@ -1,6 +1,7 @@
 package com.recyclestudy.email;
 
 import com.recyclestudy.exception.EmailSendException;
+import com.recyclestudy.member.domain.Email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +32,7 @@ class EmailSenderTest {
     @DisplayName("메일을 성공적으로 발송한다")
     void send_success() {
         // given
-        final String to = "test@test.com";
+        final Email targetEmail = Email.from("test@test.com");
         final String subject = "테스트 제목";
         final String content = "<html>테스트 내용</html>";
         final MimeMessage mimeMessage = mock(MimeMessage.class);
@@ -39,7 +40,7 @@ class EmailSenderTest {
         given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
 
         // when
-        emailSender.send(to, subject, content);
+        emailSender.send(targetEmail, subject, content);
 
         // then
         verify(javaMailSender).createMimeMessage();
@@ -50,7 +51,7 @@ class EmailSenderTest {
     @DisplayName("메일 발송 실패 시 EmailSendException을 던진다")
     void send_fail_throwsException() throws MessagingException {
         // given
-        final String to = "test@test.com";
+        final Email targetEmail = Email.from("test@test.com");
         final String subject = "테스트 제목";
         final String content = "<html>테스트 내용</html>";
         final MimeMessage mimeMessage = mock(MimeMessage.class);
@@ -60,7 +61,7 @@ class EmailSenderTest {
                 .given(mimeMessage).setRecipient(any(), any());
 
         // when & then
-        assertThatThrownBy(() -> emailSender.send(to, subject, content))
+        assertThatThrownBy(() -> emailSender.send(targetEmail, subject, content))
                 .isInstanceOf(EmailSendException.class)
                 .hasMessage("메일 전송 중 오류가 발생했습니다.");
     }
