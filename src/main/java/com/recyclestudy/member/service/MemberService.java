@@ -71,7 +71,7 @@ public class MemberService {
 
         device.verifyOwner(email);
         device.activate(LocalDateTime.now(clock));
-        log.info("[DEVICE_AUTH] 디바이스 인증 성공: email={}, device={}", email, deviceIdentifier);
+        log.info("[DEVICE_AUTH] 디바이스 인증 성공: email={}, device={}", email.toMaskedValue(), deviceIdentifier);
     }
 
     @Transactional
@@ -91,10 +91,10 @@ public class MemberService {
             return memberOptional.get();
         }
 
-        log.info("[MEMBER_REGISTER_START] 신규 유저 이메일 등록 시작: {}", email);
+        log.info("[MEMBER_REGISTER_START] 신규 유저 이메일 등록 시작: {}", email.toMaskedValue());
         final Member notSavedMember = Member.withoutId(email);
         final Member savedMember = memberRepository.save(notSavedMember);
-        log.info("[MEMBER_SAVED] 신규 유저 이메일 등록 성공: {}", email);
+        log.info("[MEMBER_SAVED] 신규 유저 이메일 등록 성공: {}", email.toMaskedValue());
         return savedMember;
     }
 
