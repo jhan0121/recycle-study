@@ -91,7 +91,7 @@ public class MemberService {
             return memberOptional.get();
         }
 
-        log.info("[MEMBER_SAVED] 신규 유저 이메일 등록 시작: {}", email);
+        log.info("[MEMBER_REGISTER_START] 신규 유저 이메일 등록 시작: {}", email);
         final Member notSavedMember = Member.withoutId(email);
         final Member savedMember = memberRepository.save(notSavedMember);
         log.info("[MEMBER_SAVED] 신규 유저 이메일 등록 성공: {}", email);
