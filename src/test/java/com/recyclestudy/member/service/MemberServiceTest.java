@@ -245,6 +245,43 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 디바이스로 인증 시도 시 예외를 던진다")
+    void authenticateDevice_not_existed_device() {
+        // given
+        final Email email = Email.from("test@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+
+        given(memberRepository.existsByEmail(email)).willReturn(true);
+        given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() -> memberService.authenticateDevice(email, deviceIdentifier))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("존재하지 않는 디바이스 아이디입니다: %s".formatted(deviceIdentifier.getValue()));
+    }
+
+    @Test
+    @DisplayName("이미 인증 된 디바이스에 다시 인증 시도 시 예외를 던진다")
+    void authenticateDevice_already_auth() {
+        // given
+        final Email email = Email.from("test@test.com");
+        final Email otherEmail = Email.from("other@test.com");
+        final DeviceIdentifier deviceIdentifier = DeviceIdentifier.from("test");
+        final Member member = Member.withoutId(email);
+        final Device device = Device.withoutId(member, deviceIdentifier, true, ActivationExpiredDateTime.create(now));
+
+        given(memberRepository.existsByEmail(otherEmail)).willReturn(true);
+        given(deviceRepository.findByIdentifier(deviceIdentifier)).willReturn(Optional.of(device));
+
+        // when
+        // then
+        assertThatThrownBy(() -> memberService.authenticateDevice(otherEmail, deviceIdentifier))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("이미 인증되었습니다");
+    }
+
+    @Test
     @DisplayName("디바이스를 삭제할 수 있다")
     void deleteDevice() {
         // given
