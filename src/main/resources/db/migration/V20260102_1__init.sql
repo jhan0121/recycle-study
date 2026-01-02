@@ -40,7 +40,7 @@ create table review_cycle
 (
     id           bigint auto_increment primary key,
     review_id    bigint      not null,
-    scheduled_at datetime(6) null,
+    scheduled_at datetime(6) not null,
     created_at   datetime(6) not null,
     modified_at  datetime(6) null,
     constraint fk_review_cycle_review_id

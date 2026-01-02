@@ -2,6 +2,7 @@ package com.recyclestudy.review.domain;
 
 import com.recyclestudy.common.BaseEntity;
 import com.recyclestudy.common.NullValidator;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -26,6 +27,7 @@ public class ReviewCycle extends BaseEntity {
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
 
+    @Column(name = "scheduled_at", nullable = false)
     private LocalDateTime scheduledAt;
 
     public static ReviewCycle withoutId(final Review review, final LocalDateTime scheduledAt) {
