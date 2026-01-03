@@ -1,0 +1,126 @@
+name: Deploy Prod Backend
+
+concurrency:
+  group: be-prod
+  cancel-in-progress: true # Deploy 작업은 한번에 하나만 실행하도록 제한
+
+on:
+  push:
+    tags:
+      - 'v*.*.*-be'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 태그 검증을 위해 전체 Git 히스토리 필요
+
+      - name: tag가 be/prod branch에 있는지 검증
+        run: |
+          git fetch origin be/prod
+          if git merge-base --is-ancestor ${{ github.sha }} origin/be/prod; then
+            echo "이 태그는 be/prod branch에 포함되어 있습니다. 배포를 진행합니다."
+          else
+            echo "Error: 이 tag는 be/prod branch에 없습니다."
+            exit 1
+          fi
+
+      - name: Git tag에서 버전 정보 추출
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Docker Hub 로그인
+        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: QEMU 설정
+        uses: docker/setup-qemu-action@v3
+
+      - name: Docker Buildx 설정
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker Image Build & Push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ${{ secrets.PROD_IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}
+            ${{ secrets.PROD_IMAGE_NAME }}:latest
+
+  deploy:
+    runs-on: [ self-hosted, recycle-study-server-prod ]
+    needs: build-and-push
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: .env file 생성
+        run: |
+          cat <<EOF > .env
+          DOCKER_IMAGE=${{ secrets.PROD_IMAGE_NAME }}
+          DOCKER_TAG=${{ needs.build-and-push.outputs.version }}
+          ${{ secrets.ENV_PROD }}
+          EOF
+
+      - name: log directory 준비
+        run: |
+          sudo mkdir -p /app/log
+          sudo chown -R 1001:1001 /app/log
+
+      - name: 배포 시작
+        run: |
+          docker compose -f docker-compose.prod.yaml pull
+          docker compose -f docker-compose.prod.yaml up -d
+
+      - name: 신규 deploy에 대한 health check
+        run: |
+          echo "=========================================="
+          echo "Health Check 시작"
+          echo "=========================================="
+
+          echo "애플리케이션 초기화 대기 중... (10초)"
+          sleep 10
+
+          # 최대 12번 시도 (총 60초)
+          for i in {1..12}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || echo "000")
+
+            if [ "$STATUS" -eq 200 ]; then
+              echo "=========================================="
+              echo "배포 성공!"
+              echo "=========================================="
+              docker ps --filter "name=recycle-study-server"
+              exit 0
+            fi
+
+            echo "[$i/12] 헬스체크 재시도... (응답 코드: $STATUS)"
+            sleep 5
+          done
+
+          # Health Check 실패 시
+          echo "=========================================="
+          echo "Health Check 실패"
+          echo "=========================================="
+          echo "컨테이너 상태:"
+          docker ps -a --filter "name=recycle-study-server"
+          echo ""
+          echo "컨테이너 로그:"
+          docker logs recycle-study-server --tail 100 || true
+
+          exit 1
+
+      - name: Docker resource 정리
+        if: always()
+        run: |
+          docker image prune -a -f
+          docker builder prune -a -f

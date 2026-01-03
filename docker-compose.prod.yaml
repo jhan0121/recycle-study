@@ -1,0 +1,11 @@
+services:
+  app:
+    container_name: recycle-study-server
+    image: ${DOCKER_IMAGE}:${DOCKER_TAG}
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - /app/log:/app/log
