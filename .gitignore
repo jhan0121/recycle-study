@@ -38,3 +38,6 @@ out/
 
 ### .env ###
 .env
+
+# Generated Swagger UI
+src/main/resources/static/docs/

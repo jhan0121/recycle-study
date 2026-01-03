@@ -1,0 +1,125 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'org.springframework.boot' version '3.5.9'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.epages.restdocs-api-spec' version '0.19.4'
+    id 'org.hidetake.swagger.generator' version '2.19.2'
+}
+
+group = 'com.recyclestudy'
+version = '0.0.1-SNAPSHOT'
+description = 'Periodic Review Assistant'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+
+    // monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.rest-assured:rest-assured'
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // api docs
+    testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.epages:restdocs-api-spec-restassured:0.19.4'
+    implementation 'com.epages:restdocs-api-spec-mockmvc:0.19.4'
+
+    swaggerUI 'org.webjars:swagger-ui:5.30.3'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+jacocoTestReport {
+    reports {
+        html.required = true
+        xml.required = true
+        csv.required = true
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "**/*Application*",
+                    "**/common/**",
+                    "**/exception/**",
+                    "**/request/**",
+                    "**/response/**",
+                    "**/input/**",
+                    "**/output/**",
+                    "**/dto/**"
+            ])
+        }))
+    }
+    dependsOn test
+}
+
+openapi3 {
+    servers = [
+            { url = "http://localhost:8080" }
+    ]
+    title = "Recycle-Study Server API Document"
+    description = "응답 테스트 검증이 완료된 명세서입니다."
+    version = "0.0.1"
+    format = "yaml"
+}
+
+swaggerSources {
+    sample {
+        setInputFile(file("${project.buildDir}/api-spec/openapi3.yaml"))
+    }
+}
+
+tasks.withType(GenerateSwaggerUI).configureEach {
+    dependsOn 'openapi3'
+}
+
+tasks.register('copySwaggerDocument', Copy) {
+    dependsOn generateSwaggerUI
+
+    from file("build/swagger-ui-sample/")
+    into file("src/main/resources/static/docs")
+}
+
+jar {
+    enabled = false
+}
+
+bootJar {
+    dependsOn copySwaggerDocument
+}

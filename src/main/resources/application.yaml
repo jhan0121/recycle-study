@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: recyclestudy
+  profiles:
+    active: local
+
+  config:
+    import:
+      - optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  flyway:
+    enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+
+auth:
+  base-url: ${BASE_URL}
