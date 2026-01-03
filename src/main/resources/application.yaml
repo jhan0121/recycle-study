@@ -35,5 +35,11 @@ spring:
             enable: true
           auth: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+
 auth:
   base-url: ${BASE_URL}

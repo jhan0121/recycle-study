@@ -38,6 +38,10 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
 
+    // monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.rest-assured:rest-assured'
     testRuntimeOnly 'com.h2database:h2'
@@ -110,6 +114,10 @@ tasks.register('copySwaggerDocument', Copy) {
 
     from file("build/swagger-ui-sample/")
     into file("src/main/resources/static/docs")
+}
+
+jar {
+    enabled = false
 }
 
 bootJar {
