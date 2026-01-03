@@ -26,7 +26,7 @@ jobs:
         run: |
           git fetch origin be/prod
           if git merge-base --is-ancestor ${{ github.sha }} origin/be/prod; then
-            echo "현재 Tag는 be/prod branch의 상위 branch입니다. 배포를 진행합니다."
+            echo "이 태그는 be/prod branch에 포함되어 있습니다. 배포를 진행합니다."
           else
             echo "Error: 이 tag는 be/prod branch에 없습니다."
             exit 1
