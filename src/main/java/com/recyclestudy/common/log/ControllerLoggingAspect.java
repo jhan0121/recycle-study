@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -20,11 +19,7 @@ public class ControllerLoggingAspect {
 
     private static final int MAX_LOG_LENGTH = 500;
 
-    @Pointcut("execution(* com.recyclestudy..controller..*(..))")
-    public void controllerMethods() {
-    }
-
-    @Around("controllerMethods()")
+    @Around("LoggingPointcuts.controllerLayer()")
     public Object logController(final ProceedingJoinPoint joinPoint) throws Throwable {
         final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         final String className = signature.getDeclaringType().getSimpleName();
