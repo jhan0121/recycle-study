@@ -1,0 +1,90 @@
+prometheus.scrape "spring" {
+  targets = [
+    {
+      __address__ = "recycle-study-server:8080",
+      app         = "recycle-study-server",
+    },
+  ]
+
+  metrics_path    = "/actuator/prometheus"
+  scrape_interval = "15s"
+  scrape_timeout  = "10s"
+
+  forward_to = [prometheus.remote_write.to_prom.receiver]
+}
+
+prometheus.remote_write "to_prom" {
+  endpoint {
+    url = sys.env("PROMETHEUS_HOST") + "/api/v1/write"
+  }
+}
+
+prometheus.scrape "node" {
+  targets = [
+    {
+      __address__ = "node-exporter:9100",
+      app         = "recycle-study-server",
+    },
+  ]
+
+  scrape_interval = "15s"
+  scrape_timeout  = "10s"
+
+  forward_to = [prometheus.remote_write.to_prom.receiver]
+}
+
+local.file_match "local_files" {
+ path_targets = [
+    {
+      __path__ = "/var/log/app/*.json",
+      env      = "dev",
+      app      = "recycle-study-server",
+    },
+  ]
+  sync_period = "5s"
+}
+
+loki.source.file "log_scrape" {
+  targets    = local.file_match.local_files.targets
+  forward_to = [loki.process.filter_logs.receiver]
+  tail_from_end = true
+}
+
+loki.process "filter_logs" {
+  stage.drop {
+    source = ""
+    expression  = ".*Connection closed by authenticating user root"
+    drop_counter_reason = "noisy"
+  }
+  forward_to = [loki.write.grafana_loki.receiver]
+}
+
+loki.write "grafana_loki" {
+  endpoint {
+    url = sys.env("LOKI_HOST") + "/loki/api/v1/push"
+  }
+}
+
+otelcol.receiver.otlp "default" {
+    grpc { endpoint = "0.0.0.0:4317" }
+
+    output {
+        traces  = [otelcol.processor.memory_limiter.default.input]
+    }
+}
+
+otelcol.processor.memory_limiter "default" {
+    check_interval   = "1s"
+    limit_percentage = 90
+    spike_limit_percentage = 95
+
+    output {
+        traces  = [otelcol.exporter.otlphttp.default.input]
+    }
+}
+
+otelcol.exporter.otlphttp "default" {
+    client {
+        endpoint = sys.env("TEMPO_HOST") + "/v1/traces"
+    }
+}

@@ -41,5 +41,14 @@ management:
       exposure:
         include: prometheus, health
 
+  tracing:
+    sampling:
+      probability: 1.0
+
+  otlp:
+    tracing:
+      endpoint: ${ALLOY_URL}
+      transport: grpc
+
 auth:
   base-url: ${BASE_URL}
