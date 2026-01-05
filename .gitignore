@@ -38,3 +38,9 @@ out/
 
 ### .env ###
 .env
+
+### Monitoring Stack Data ###
+grafana/data/
+loki/data/
+prometheus/data/
+tempo/data/
