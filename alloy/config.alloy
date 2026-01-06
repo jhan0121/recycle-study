@@ -36,8 +36,7 @@ prometheus.scrape "node" {
 local.file_match "local_files" {
  path_targets = [
     {
-      __path__ = "/var/log/app/*.json",
-      env      = "dev",
+      __path__ = "/var/log/app/*.log",
       app      = "recycle-study-server",
     },
   ]
@@ -85,6 +84,6 @@ otelcol.processor.memory_limiter "default" {
 
 otelcol.exporter.otlphttp "default" {
     client {
-        endpoint = sys.env("TEMPO_HOST") + "/v1/traces"
+        endpoint = sys.env("TEMPO_HOST")
     }
 }
