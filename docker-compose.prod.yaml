@@ -9,3 +9,36 @@ services:
       - .env
     volumes:
       - /app/log:/app/log
+    networks:
+      - observability
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+      - /app/log:/var/log/app
+    command:
+      - "run"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--storage.path=/var/lib/alloy"
+      - "--stability.level=experimental"
+      - "/etc/alloy/config.alloy"
+    ports:
+      - "12345:12345" # Alloy UI
+      - "4317:4317"   # OTLP gRPC
+    networks:
+      - observability
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    networks:
+      - observability
+
+networks:
+  observability:
