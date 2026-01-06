@@ -7,9 +7,41 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    volumes:
+      - app_log:/app/log
+    networks:
+      - observability
     depends_on:
       mysql:
         condition: service_healthy
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+      - app_log:/app/log
+    command:
+      - "run"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--storage.path=/var/lib/alloy"
+      - "--stability.level=experimental"
+      - "/etc/alloy/config.alloy"
+    ports:
+      - "12345:12345" # Alloy UI
+      - "14317:4317"   # OTLP gRPC
+    networks:
+      - observability
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    networks:
+      - observability
 
   mysql:
     container_name: recycle-study-mysql
@@ -29,6 +61,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - observability
 
 volumes:
   mysql_volume:
+  app_log:
+
+networks:
+  observability:
