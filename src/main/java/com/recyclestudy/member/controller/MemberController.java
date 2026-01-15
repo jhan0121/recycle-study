@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,11 +42,21 @@ public class MemberController {
     @GetMapping
     public ResponseEntity<MemberFindResponse> findAllMemberDevices(
             @RequestParam(name = "email") final String email,
-            @RequestParam(name = "identifier") final String identifier
+            @RequestParam(name = "identifier", required = false) final String identifier,
+            @RequestHeader(value = "X-Device-Id", required = false) String headerIdentifier
     ) {
-        final MemberFindInput input = MemberFindInput.from(email, identifier);
+        final String resolvedIdentifier = getResolvedIdentifier(identifier, headerIdentifier);
+
+        final MemberFindInput input = MemberFindInput.from(email, resolvedIdentifier);
         final MemberFindOutput output = memberService.findAllMemberDevices(input);
         final MemberFindResponse response = MemberFindResponse.from(output);
         return ResponseEntity.ok(response);
+    }
+
+    private String getResolvedIdentifier(final String identifier, final String headerIdentifier) {
+        if (headerIdentifier == null) {
+            return identifier;
+        }
+        return headerIdentifier;
     }
 }
