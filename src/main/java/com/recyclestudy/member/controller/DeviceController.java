@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,10 +34,22 @@ public class DeviceController {
 
     @DeleteMapping
     @ResponseBody
-    public ResponseEntity<Void> deleteDevice(@RequestBody final DeviceDeleteRequest request) {
-        final DeviceDeleteInput input = DeviceDeleteInput.from(request.email(), request.deviceIdentifier(),
+    public ResponseEntity<Void> deleteDevice(
+            @RequestHeader(value = "X-Device-Id", required = false) String headerIdentifier,
+            @RequestBody final DeviceDeleteRequest request
+    ) {
+        final String resolvedIdentifier = getResolvedIdentifier(request.deviceIdentifier(), headerIdentifier);
+
+        final DeviceDeleteInput input = DeviceDeleteInput.from(request.email(), resolvedIdentifier,
                 request.targetDeviceIdentifier());
         memberService.deleteDevice(input);
         return ResponseEntity.noContent().build();
+    }
+
+    private String getResolvedIdentifier(final String identifier, final String headerIdentifier) {
+        if (headerIdentifier == null) {
+            return identifier;
+        }
+        return headerIdentifier;
     }
 }
